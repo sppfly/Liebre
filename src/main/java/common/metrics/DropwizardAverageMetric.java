@@ -29,15 +29,15 @@ import com.codahale.metrics.MetricRegistry;
 /** Statistic that writes the per-second average of the recorded value. */
 public class DropwizardAverageMetric extends AbstractMetric implements Metric {
 
-  private final Histogram histogram;
+    private final Histogram histogram;
 
-  public DropwizardAverageMetric(String id, MetricRegistry metricRegistry) {
-    super(id);
-    histogram = metricRegistry.histogram(id);
-  }
+    public DropwizardAverageMetric(String id, MetricRegistry metricRegistry) {
+        super(id);
+        histogram = metricRegistry.histogram(id);
+    }
 
-  @Override
-  protected void doRecord(long v) {
-    histogram.update(v);
-  }
+    @Override
+    protected void doRecord(long v) {
+        histogram.update(v);
+    }
 }

@@ -28,37 +28,26 @@ import common.tuple.RichTuple;
 import java.util.*;
 
 /**
- * Aggregate implementation for sliding time-based windows. Decides which tuples belong to which
- * windows and takes care of producing aggregation results by delegating to a provided {@link
- * TimeWindowAddRemove} implementation.
+ * Aggregate implementation for sliding time-based windows. Decides which tuples
+ * belong to which windows and takes care of producing aggregation results by
+ * delegating to a provided {@link TimeWindowAddRemove} implementation.
  *
  * @param <IN>  The type of input tuples.
  * @param <OUT> The type of output tuples.
  */
-public class TimeSWAggregate<IN extends RichTuple, OUT extends RichTuple>
-        extends TimeAggregate<IN, OUT> {
+public class TimeSWAggregate<IN extends RichTuple, OUT extends RichTuple> extends TimeAggregate<IN, OUT> {
 
     private TimeWindowAddSlide<IN, OUT> aggregateWindow;
     private TreeMap<Long, HashMap<String, TimeWindowAddSlide<IN, OUT>>> windows;
 
-    public TimeSWAggregate(
-            String id,
-            int instance,
-            int parallelismDegree,
-            long windowSize,
-            long windowSlide,
+    public TimeSWAggregate(String id, int instance, int parallelismDegree, long windowSize, long windowSlide,
             TimeWindowAddSlide<IN, OUT> aggregateWindow) {
         super(id, instance, parallelismDegree, windowSize, windowSlide, aggregateWindow, new BaseKeyExtractor());
         windows = new TreeMap<>();
         this.aggregateWindow = aggregateWindow;
     }
 
-    public TimeSWAggregate(
-            String id,
-            int instance,
-            int parallelismDegree,
-            long windowSize,
-            long windowSlide,
+    public TimeSWAggregate(String id, int instance, int parallelismDegree, long windowSize, long windowSlide,
             TimeWindowAddRemove<IN, OUT> aggregateWindow) {
         super(id, instance, parallelismDegree, windowSize, windowSlide, aggregateWindow, new BaseKeyExtractor());
         windows = new TreeMap<>();
@@ -98,7 +87,7 @@ public class TimeSWAggregate<IN extends RichTuple, OUT extends RichTuple>
                 for (String s : windows.get(earliestWinStartTS).keySet()) {
                     windows.get(earliestWinStartTS).get(s).slideTo(earliestWinStartTS + WA);
                     if (!windows.get(earliestWinStartTS).get(s).isEmpty()) {
-                        windows.get(earliestWinStartTS + WA).put(s,windows.get(earliestWinStartTS).get(s));
+                        windows.get(earliestWinStartTS + WA).put(s, windows.get(earliestWinStartTS).get(s));
                     }
                 }
                 windows.remove(earliestWinStartTS);

@@ -38,78 +38,70 @@ import query.Query;
 
 public class ScaleGateExample {
 
-	@SuppressWarnings("unchecked")
-	public static void main(String[] args) {
+    @SuppressWarnings("unchecked")
+    public static void main(String[] args) {
 
-		Query q = new Query();
-		// q.activateStatistics(reportFolder);
-		Source<MyTuple> source1 = q.addBaseSource("S1",
-				new SourceFunction<MyTuple>() {
-					private final Random r = new Random();
+        Query q = new Query();
+        // q.activateStatistics(reportFolder);
+        Source<MyTuple> source1 = q.addBaseSource("S1", new SourceFunction<MyTuple>() {
+            private final Random r = new Random();
 
-					@Override
-					public MyTuple get() {
-						Util.sleep(25 + r.nextInt(25));
-						return new MyTuple(System.currentTimeMillis(), "",
-								"S1", r.nextInt(100));
-					}
-				});
-		Source<MyTuple> source2 = q.addBaseSource("S2",
-				new SourceFunction<MyTuple>() {
-					private final Random r = new Random();
+            @Override
+            public MyTuple get() {
+                Util.sleep(25 + r.nextInt(25));
+                return new MyTuple(System.currentTimeMillis(), "", "S1", r.nextInt(100));
+            }
+        });
+        Source<MyTuple> source2 = q.addBaseSource("S2", new SourceFunction<MyTuple>() {
+            private final Random r = new Random();
 
-					@Override
-					public MyTuple get() {
-						Util.sleep(25 + r.nextInt(25));
-						return new MyTuple(System.currentTimeMillis(), "",
-								"S2", r.nextInt(100));
-					}
-				});
+            @Override
+            public MyTuple get() {
+                Util.sleep(25 + r.nextInt(25));
+                return new MyTuple(System.currentTimeMillis(), "", "S2", r.nextInt(100));
+            }
+        });
 
-		Operator<MyTuple, MyTuple> multiply = q
-				.addOperator(new BaseOperator1In<MyTuple, MyTuple>("M") {
+        Operator<MyTuple, MyTuple> multiply = q.addOperator(new BaseOperator1In<MyTuple, MyTuple>("M") {
 
-					long lastTimestamp = -1;
+            long lastTimestamp = -1;
 
-					@Override
-					public List<MyTuple> processTupleIn1(MyTuple tuple) {
-						if (!(lastTimestamp == -1)) {
-							assert (tuple.getTimestamp() >= lastTimestamp);
-						}
-						lastTimestamp = tuple.getTimestamp();
-						List<MyTuple> result = new LinkedList<MyTuple>();
-						result.add(new MyTuple(tuple.getTimestamp(), tuple
-								.getKey(), tuple.source, tuple.value * 2));
-						return result;
-					}
-				});
+            @Override
+            public List<MyTuple> processTupleIn1(MyTuple tuple) {
+                if (!(lastTimestamp == -1)) {
+                    assert (tuple.getTimestamp() >= lastTimestamp);
+                }
+                lastTimestamp = tuple.getTimestamp();
+                List<MyTuple> result = new LinkedList<MyTuple>();
+                result.add(new MyTuple(tuple.getTimestamp(), tuple.getKey(), tuple.source, tuple.value * 2));
+                return result;
+            }
+        });
 
-		Sink<MyTuple> sink = q.addBaseSink("O1",
-				tuple -> System.out.println(tuple));
+        Sink<MyTuple> sink = q.addBaseSink("O1", tuple -> System.out.println(tuple));
 
-		q.connect(Arrays.asList(source1, source2),  Arrays.asList(multiply))
-				.connect(multiply, sink);
+        q.connect(Arrays.asList(source1, source2), Arrays.asList(multiply)).connect(multiply, sink);
 
-		q.activate();
-		Util.sleep(30000);
-		q.deActivate();
+        q.activate();
+        Util.sleep(30000);
+        q.deActivate();
 
-	}
+    }
 
-	private static class MyTuple extends BaseRichTuple implements Comparable<BaseRichTuple> {
+    private static class MyTuple extends BaseRichTuple implements Comparable<BaseRichTuple> {
 
-		public String source;
-		public int value;
+        public String source;
+        public int value;
 
-		public MyTuple(long timestamp, String key, String source, int value) {
-			super(timestamp, key);
-			this.source = source;
-			this.value = value;
-		}
+        public MyTuple(long timestamp, String key, String source, int value) {
+            super(timestamp, key);
+            this.source = source;
+            this.value = value;
+        }
 
-		@Override
-		public String toString() {
-			return getTimestamp() + "," + getKey() + "," + source + "," + value;
-		}
-	}
+        @Override
+        public String toString() {
+            return getTimestamp() + "," + getKey() + "," + source + "," + value;
+        }
+    }
 }

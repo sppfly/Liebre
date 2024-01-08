@@ -27,67 +27,57 @@ import org.apache.commons.lang3.Validate;
 import stream.SGStream;
 
 /**
- * Enum representing the various types of components which are available as separate subclasses.
- * Defines several functions that check for the invariants of the states of each component type.
+ * Enum representing the various types of components which are available as
+ * separate subclasses. Defines several functions that check for the invariants
+ * of the states of each component type.
  *
  * @author palivosd
  */
 public enum ComponentType {
-  OPERATOR(ConnectionsNumber.ONE, ConnectionsNumber.ONE),
-  OPERATOR2IN(ConnectionsNumber.TWO, ConnectionsNumber.ONE),
-  UNION(ConnectionsNumber.N, ConnectionsNumber.ONE),
-  ROUTER(ConnectionsNumber.ONE, ConnectionsNumber.N),
-  SOURCE(ConnectionsNumber.NONE, ConnectionsNumber.ONE),
-  SINK(ConnectionsNumber.ONE, ConnectionsNumber.NONE);
+    OPERATOR(ConnectionsNumber.ONE, ConnectionsNumber.ONE), OPERATOR2IN(ConnectionsNumber.TWO, ConnectionsNumber.ONE),
+    UNION(ConnectionsNumber.N, ConnectionsNumber.ONE), ROUTER(ConnectionsNumber.ONE, ConnectionsNumber.N),
+    SOURCE(ConnectionsNumber.NONE, ConnectionsNumber.ONE), SINK(ConnectionsNumber.ONE, ConnectionsNumber.NONE);
 
-  private final ConnectionsNumber inputsNumber;
-  private final ConnectionsNumber outputsNumber;
+    private final ConnectionsNumber inputsNumber;
+    private final ConnectionsNumber outputsNumber;
 
-  ComponentType(ConnectionsNumber inputsNumber, ConnectionsNumber outputsNumber) {
-    this.inputsNumber = inputsNumber;
-    this.outputsNumber = outputsNumber;
-  }
+    ComponentType(ConnectionsNumber inputsNumber, ConnectionsNumber outputsNumber) {
+        this.inputsNumber = inputsNumber;
+        this.outputsNumber = outputsNumber;
+    }
 
-  void validateInputs(ComponentState<?, ?> state) {
-    long sgInputCount =
-        state.getInputs().stream().filter(input -> input instanceof SGStream).count();
-    int size = state.getInputs().size();
-    Validate.validState(
-        sgInputCount > 0 || inputsNumber.isValid(size),
-        "Invalid inputs number for component '%s': %d",
-        state.getId(),
-        size);
-  }
+    void validateInputs(ComponentState<?, ?> state) {
+        long sgInputCount = state.getInputs().stream().filter(input -> input instanceof SGStream).count();
+        int size = state.getInputs().size();
+        Validate.validState(sgInputCount > 0 || inputsNumber.isValid(size),
+                "Invalid inputs number for component '%s': %d", state.getId(), size);
+    }
 
-  void validateOutputs(ComponentState<?, ?> state) {
-    long sgOutputCount =
-        state.getInputs().stream().filter(input -> input instanceof SGStream).count();
-    int size = state.getOutputs().size();
-    Validate.validState(
-        sgOutputCount > 0 || outputsNumber.isValid(size),
-        "Invalid outputs number for component '%s': %d",
-        state.getId(),
-        size);
-  }
+    void validateOutputs(ComponentState<?, ?> state) {
+        long sgOutputCount = state.getInputs().stream().filter(input -> input instanceof SGStream).count();
+        int size = state.getOutputs().size();
+        Validate.validState(sgOutputCount > 0 || outputsNumber.isValid(size),
+                "Invalid outputs number for component '%s': %d", state.getId(), size);
+    }
 
-  void validate(ComponentState<?, ?> state) {
-    validateInputs(state);
-    validateOutputs(state);
-  }
+    void validate(ComponentState<?, ?> state) {
+        validateInputs(state);
+        validateOutputs(state);
+    }
 
-  boolean isProducer() {
-    return outputsNumber != ConnectionsNumber.NONE;
-  }
+    boolean isProducer() {
+        return outputsNumber != ConnectionsNumber.NONE;
+    }
 
-  boolean isConsumer() {
-    return inputsNumber != ConnectionsNumber.NONE;
-  }
+    boolean isConsumer() {
+        return inputsNumber != ConnectionsNumber.NONE;
+    }
 
-  public ConnectionsNumber inputsNumber() {
-    return inputsNumber;
-  }
+    public ConnectionsNumber inputsNumber() {
+        return inputsNumber;
+    }
 
-  public ConnectionsNumber outputsNumber() {
-    return outputsNumber;
-  }
+    public ConnectionsNumber outputsNumber() {
+        return outputsNumber;
+    }
 }

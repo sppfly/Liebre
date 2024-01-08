@@ -34,37 +34,36 @@ import java.util.Random;
  */
 public class ThreeColumnExampleTextDataGenerator2 extends ExampleTextDataGenerator {
 
-  private static int key = 0;
-  private static long ts = 0;
-  private static int tuplesPerKey = 10;
-  private final Random rand = new Random();
+    private static int key = 0;
+    private static long ts = 0;
+    private static int tuplesPerKey = 10;
+    private final Random rand = new Random();
 
-  public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-    final String outFile = args[0];
+        final String outFile = args[0];
 
-    ExampleTextDataGenerator generator = new ThreeColumnExampleTextDataGenerator2();
-    generator.generate(outFile);
-  }
-
-  @Override
-  protected List<String> getNextRecord() {
-
-    List<String> record = Arrays
-            .asList(String.valueOf(ts), String.valueOf(key), String.valueOf(rand.nextInt(100)));
-
-    key++;
-    if (key==tuplesPerKey) {
-      key=0;
-      ts++;
+        ExampleTextDataGenerator generator = new ThreeColumnExampleTextDataGenerator2();
+        generator.generate(outFile);
     }
 
-    return record;
-  }
+    @Override
+    protected List<String> getNextRecord() {
 
-  @Override
-  protected int numberOfLinesToGenerate() {
-    return 10000*tuplesPerKey;
-  }
+        List<String> record = Arrays.asList(String.valueOf(ts), String.valueOf(key), String.valueOf(rand.nextInt(100)));
+
+        key++;
+        if (key == tuplesPerKey) {
+            key = 0;
+            ts++;
+        }
+
+        return record;
+    }
+
+    @Override
+    protected int numberOfLinesToGenerate() {
+        return 10000 * tuplesPerKey;
+    }
 
 }

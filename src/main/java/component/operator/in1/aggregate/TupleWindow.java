@@ -24,21 +24,21 @@
 package component.operator.in1.aggregate;
 
 /**
- * Tuple-based, stateful window of an aggregate function. The important functions which need to be
- * implemented and define the aggregation logic are {@link TupleWindow#add(Object)},
- * and {@link TupleWindow#getAggregatedResult()}.
+ * Tuple-based, stateful window of an aggregate function. The important
+ * functions which need to be implemented and define the aggregation logic are
+ * {@link TupleWindow#add(Object)}, and
+ * {@link TupleWindow#getAggregatedResult()}.
  *
- * @param <IN> The type of the input tuples.
+ * @param <IN>  The type of the input tuples.
  * @param <OUT> The type of the output tuples.
  */
-public interface TupleWindow<IN, OUT> extends
-    Window<IN,OUT> {
+public interface TupleWindow<IN, OUT> extends Window<IN, OUT> {
 
-  /**
-   * Called when the window is slides by the given amount of tuples
-   *
-   * @param tuples Number of tuples to be discarded due to the window slide.
-   */
-  void slideBy(long tuples);
+    /**
+     * Called when the window is slides by the given amount of tuples
+     *
+     * @param tuples Number of tuples to be discarded due to the window slide.
+     */
+    void slideBy(long tuples);
 
 }

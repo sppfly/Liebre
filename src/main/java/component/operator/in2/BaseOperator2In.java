@@ -36,57 +36,57 @@ import stream.Stream;
  */
 public abstract class BaseOperator2In<IN, IN2, OUT> extends AbstractOperator2In<IN, IN2, OUT> {
 
-  /**
-   * Construct.
-   *
-   * @param id The unique ID of this component.operator.
-   */
-  public BaseOperator2In(String id) {
-    super(id, ComponentType.OPERATOR2IN);
-  }
-
-  @Override
-  protected final void process() {
-    if (isFlushed()) {
-      return;
-    }
-    Stream<IN> input1 = getInput();
-    Stream<IN2> input2 = getInput2();
-    Stream<OUT> output = getOutput();
-
-    IN inTuple1 = input1.getNextTuple(getIndex());
-    IN2 inTuple2 = input2.getNextTuple(getIndex());
-
-    if (isStreamFinished(inTuple1, input1) && isStreamFinished(inTuple2, input2)) {
-      flush();
-      return;
+    /**
+     * Construct.
+     *
+     * @param id The unique ID of this component.operator.
+     */
+    public BaseOperator2In(String id) {
+        super(id, ComponentType.OPERATOR2IN);
     }
 
-    if (inTuple1 != null) {
-      increaseTuplesRead();
-      List<OUT> outTuples = processTupleIn1(inTuple1);
-      if (outTuples != null) {
-        for (OUT t : outTuples) {
-          increaseTuplesWritten();
-          output.addTuple(t, getIndex());
+    @Override
+    protected final void process() {
+        if (isFlushed()) {
+            return;
         }
-      }
-    }
+        Stream<IN> input1 = getInput();
+        Stream<IN2> input2 = getInput2();
+        Stream<OUT> output = getOutput();
 
-    if (inTuple2 != null) {
-      increaseTuplesRead();
-      List<OUT> outTuples = processTupleIn2(inTuple2);
-      if (outTuples != null) {
-        for (OUT t : outTuples) {
-          increaseTuplesWritten();
-          output.addTuple(t, getIndex());
+        IN inTuple1 = input1.getNextTuple(getIndex());
+        IN2 inTuple2 = input2.getNextTuple(getIndex());
+
+        if (isStreamFinished(inTuple1, input1) && isStreamFinished(inTuple2, input2)) {
+            flush();
+            return;
         }
-      }
-    }
-  }
 
-  @Override
-  protected void flushAction() {
-    getOutput().flush();
-  }
+        if (inTuple1 != null) {
+            increaseTuplesRead();
+            List<OUT> outTuples = processTupleIn1(inTuple1);
+            if (outTuples != null) {
+                for (OUT t : outTuples) {
+                    increaseTuplesWritten();
+                    output.addTuple(t, getIndex());
+                }
+            }
+        }
+
+        if (inTuple2 != null) {
+            increaseTuplesRead();
+            List<OUT> outTuples = processTupleIn2(inTuple2);
+            if (outTuples != null) {
+                for (OUT t : outTuples) {
+                    increaseTuplesWritten();
+                    output.addTuple(t, getIndex());
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void flushAction() {
+        getOutput().flush();
+    }
 }

@@ -31,56 +31,56 @@ import io.palyvos.haren.FeatureHelper;
 
 public class HarenFeatureTranslator {
 
-  public static final double NO_ARRIVAL_TIME = FeatureHelper.NO_ARRIVAL_TIME;
-  public static final long MAX_QUEUE_SIZE = FeatureHelper.MAX_QUEUE_SIZE;
+    public static final double NO_ARRIVAL_TIME = FeatureHelper.NO_ARRIVAL_TIME;
+    public static final long MAX_QUEUE_SIZE = FeatureHelper.MAX_QUEUE_SIZE;
 
-  private HarenFeatureTranslator() {
+    private HarenFeatureTranslator() {
 
-  }
-
-  public static double get(Feature feature, Component component) {
-    if (feature == COST) {
-      return component.getCost();
-    } else if (feature == SELECTIVITY) {
-      return component.getSelectivity();
-    } else if (feature == TOPOLOGICAL_ORDER) {
-      return component.getTopologicalOrder();
-    } else if (feature == COMPONENT_TYPE) {
-      return translatedComponentType(component);
-    } else if (feature == HEAD_ARRIVAL_TIME) {
-      return component.getHeadArrivalTime();
-    } else if (feature == AVERAGE_ARRIVAL_TIME) {
-      return component.getAverageArrivalTime();
-    } else if (feature == RATE) {
-      return component.getRate();
-    } else if (feature == USER_PRIORITY) {
-      return component.getPriority();
-    } else if (feature == INPUT_QUEUE_SIZE) {
-      return component.getInputQueueSize();
-    } else if (feature == OUTPUT_QUEUE_SIZE) {
-      return component.getOutputQueueSize();
-    } else {
-      throw new IllegalStateException("Unknown feature: " + feature);
     }
 
-  }
+    public static double get(Feature feature, Component component) {
+        if (feature == COST) {
+            return component.getCost();
+        } else if (feature == SELECTIVITY) {
+            return component.getSelectivity();
+        } else if (feature == TOPOLOGICAL_ORDER) {
+            return component.getTopologicalOrder();
+        } else if (feature == COMPONENT_TYPE) {
+            return translatedComponentType(component);
+        } else if (feature == HEAD_ARRIVAL_TIME) {
+            return component.getHeadArrivalTime();
+        } else if (feature == AVERAGE_ARRIVAL_TIME) {
+            return component.getAverageArrivalTime();
+        } else if (feature == RATE) {
+            return component.getRate();
+        } else if (feature == USER_PRIORITY) {
+            return component.getPriority();
+        } else if (feature == INPUT_QUEUE_SIZE) {
+            return component.getInputQueueSize();
+        } else if (feature == OUTPUT_QUEUE_SIZE) {
+            return component.getOutputQueueSize();
+        } else {
+            throw new IllegalStateException("Unknown feature: " + feature);
+        }
 
-  static double translatedComponentType(Component component) {
-    switch (component.getType()) {
-      case SOURCE:
-        return FeatureHelper.CTYPE_SOURCE;
-      case SINK:
-        return FeatureHelper.CTYPE_SINK;
-      case OPERATOR:
-        return FeatureHelper.CTYPE_OPERATOR;
-      case OPERATOR2IN:
-        return FeatureHelper.CTYPE_JOIN;
-      case ROUTER:
-        return FeatureHelper.CTYPE_ROUTER;
-      case UNION:
-        return FeatureHelper.CTYPE_UNION;
-      default:
-        throw new IllegalStateException("Unknown component type " + component.getType());
     }
-  }
+
+    static double translatedComponentType(Component component) {
+        switch (component.getType()) {
+        case SOURCE:
+            return FeatureHelper.CTYPE_SOURCE;
+        case SINK:
+            return FeatureHelper.CTYPE_SINK;
+        case OPERATOR:
+            return FeatureHelper.CTYPE_OPERATOR;
+        case OPERATOR2IN:
+            return FeatureHelper.CTYPE_JOIN;
+        case ROUTER:
+            return FeatureHelper.CTYPE_ROUTER;
+        case UNION:
+            return FeatureHelper.CTYPE_UNION;
+        default:
+            throw new IllegalStateException("Unknown component type " + component.getType());
+        }
+    }
 }

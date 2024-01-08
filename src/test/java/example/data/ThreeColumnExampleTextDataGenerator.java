@@ -34,26 +34,26 @@ import java.util.Random;
  */
 public class ThreeColumnExampleTextDataGenerator extends ExampleTextDataGenerator {
 
-  private static final int KEY = 1;
-  private final Random rand = new Random();
+    private static final int KEY = 1;
+    private final Random rand = new Random();
 
-  public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-    final String outFile = args[0];
+        final String outFile = args[0];
 
-    ExampleTextDataGenerator generator = new ThreeColumnExampleTextDataGenerator();
-    generator.generate(outFile);
-  }
+        ExampleTextDataGenerator generator = new ThreeColumnExampleTextDataGenerator();
+        generator.generate(outFile);
+    }
 
-  @Override
-  protected List<String> getNextRecord() {
-    return Arrays
-        .asList(String.valueOf(System.currentTimeMillis()), String.valueOf(KEY), String.valueOf(rand.nextInt(100)));
-  }
+    @Override
+    protected List<String> getNextRecord() {
+        return Arrays.asList(String.valueOf(System.currentTimeMillis()), String.valueOf(KEY),
+                String.valueOf(rand.nextInt(100)));
+    }
 
-  @Override
-  protected int numberOfLinesToGenerate() {
-    return 10000;
-  }
+    @Override
+    protected int numberOfLinesToGenerate() {
+        return 10000;
+    }
 
 }

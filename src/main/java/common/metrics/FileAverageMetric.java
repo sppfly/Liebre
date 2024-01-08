@@ -25,42 +25,42 @@ package common.metrics;
 /** Statistic that writes the per-second average of the recorded value. */
 public class FileAverageMetric extends AbstractFileMetric {
 
-  private long sum;
-  private long count;
-  private long prevSec;
+    private long sum;
+    private long count;
+    private long prevSec;
 
-  public FileAverageMetric(String id, String folder, boolean autoFlush) {
-    super(id, folder, autoFlush);
-  }
-
-  @Override
-  protected void doRecord(long v) {
-    writePreviousAverages();
-    sum += v;
-    count++;
-  }
-
-  @Override
-  public void enable() {
-    this.sum = 0;
-    this.count = 0;
-    prevSec = currentTimeSeconds();
-    super.enable();
-  }
-
-  public void disable() {
-    writePreviousAverages();
-    super.disable();
-  }
-
-  private void writePreviousAverages() {
-    long thisSec = currentTimeSeconds();
-    while (prevSec < thisSec) {
-      long average = (count != 0 ? sum / count : -1);
-      writeCSVLine(prevSec, average);
-      sum = 0;
-      count = 0;
-      prevSec++;
+    public FileAverageMetric(String id, String folder, boolean autoFlush) {
+        super(id, folder, autoFlush);
     }
-  }
+
+    @Override
+    protected void doRecord(long v) {
+        writePreviousAverages();
+        sum += v;
+        count++;
+    }
+
+    @Override
+    public void enable() {
+        this.sum = 0;
+        this.count = 0;
+        prevSec = currentTimeSeconds();
+        super.enable();
+    }
+
+    public void disable() {
+        writePreviousAverages();
+        super.disable();
+    }
+
+    private void writePreviousAverages() {
+        long thisSec = currentTimeSeconds();
+        while (prevSec < thisSec) {
+            long average = (count != 0 ? sum / count : -1);
+            writeCSVLine(prevSec, average);
+            sum = 0;
+            count = 0;
+            prevSec++;
+        }
+    }
 }

@@ -29,7 +29,8 @@ import java.io.Serializable;
 import java.util.function.Predicate;
 
 /**
- * A boolean predicate that decides whether tuples should be forwarded further or not.
+ * A boolean predicate that decides whether tuples should be forwarded further
+ * or not.
  *
  * @param <T> The type of tuples handled by the predicate.
  */

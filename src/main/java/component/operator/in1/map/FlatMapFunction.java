@@ -31,18 +31,18 @@ import java.util.List;
 /**
  * Function that maps a tuple to zero or more output tuples.
  *
- * @param <IN> The type of the input tuple.
+ * @param <IN>  The type of the input tuple.
  * @param <OUT> The type of the output tuple(s).
  */
 @FunctionalInterface
 public interface FlatMapFunction<IN, OUT> extends ComponentFunction, Serializable {
 
-  /**
-   * Apply a function mapping the input to zero or more output tuples. If no tuples are to be
-   * produced, an empty or null list is acceptable.
-   *
-   * @param tuple The tuple to be mapped.
-   * @return The result of the function.
-   */
-  List<OUT> apply(IN tuple);
+    /**
+     * Apply a function mapping the input to zero or more output tuples. If no
+     * tuples are to be produced, an empty or null list is acceptable.
+     *
+     * @param tuple The tuple to be mapped.
+     * @return The result of the function.
+     */
+    List<OUT> apply(IN tuple);
 }

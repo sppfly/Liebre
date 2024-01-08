@@ -15,7 +15,8 @@ public abstract class TimeAggregate<IN extends RichTuple, OUT extends RichTuple>
     protected KeyExtractor keyExtractor;
     private boolean firstTuple = true;
 
-    public TimeAggregate(String id, int instance, int parallelismDegree, long ws, long wa, TimeWindow w, KeyExtractor keyExtractor) {
+    public TimeAggregate(String id, int instance, int parallelismDegree, long ws, long wa, TimeWindow w,
+            KeyExtractor keyExtractor) {
         super(id);
         this.instance = instance;
         this.parallelismDegree = parallelismDegree;
@@ -24,7 +25,8 @@ public abstract class TimeAggregate<IN extends RichTuple, OUT extends RichTuple>
         this.w = w;
         this.keyExtractor = keyExtractor;
 
-        if ((wa > ws)) throw new AssertionError();
+        if ((wa > ws))
+            throw new AssertionError();
         WS_WA_ceil = (long) Math.ceil((double) WS / (double) WA);
         WS_WA_ceil_minus_1 = WS_WA_ceil - 1;
     }

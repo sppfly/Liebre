@@ -4,11 +4,11 @@ import common.Active;
 
 public interface TimeMetric extends Active {
 
-  void startInterval();
+    void startInterval();
 
-  void stopInterval();
+    void stopInterval();
 
-  void record(long interval);
+    void record(long interval);
 
-  String id();
+    String id();
 }

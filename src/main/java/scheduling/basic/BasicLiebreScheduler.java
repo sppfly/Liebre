@@ -34,95 +34,94 @@ import scheduling.LiebreScheduler;
 import scheduling.thread.BasicWorkerThread;
 
 /**
- * Scheduler implementation in case no scheduling is actually needed and the requirement is just one
- * thread per component.operator.
+ * Scheduler implementation in case no scheduling is actually needed and the
+ * requirement is just one thread per component.operator.
  *
  * @author palivosd
  */
 public class BasicLiebreScheduler implements LiebreScheduler<Component> {
 
-  private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
-  private final List<Component> tasks = new ArrayList<>();
-  private final List<BasicWorkerThread> threads = new ArrayList<>();
-  private final BitSet affinity;
-  private volatile boolean enabled;
+    private final List<Component> tasks = new ArrayList<>();
+    private final List<BasicWorkerThread> threads = new ArrayList<>();
+    private final BitSet affinity;
+    private volatile boolean enabled;
 
-  public BasicLiebreScheduler() {
-    this(null);
-  }
-
-  public BasicLiebreScheduler(BitSet affinity) {
-    this.affinity = affinity;
-  }
-
-  @Override
-  public void addTasks(Collection<Component> tasks) {
-    if (isEnabled()) {
-      throw new IllegalStateException();
+    public BasicLiebreScheduler() {
+        this(null);
     }
-    this.tasks.addAll(tasks);
-  }
 
-  @Override
-  public void removeTasks(Collection<Component> tasks) {
-    if (isEnabled()) {
-      throw new IllegalStateException();
+    public BasicLiebreScheduler(BitSet affinity) {
+        this.affinity = affinity;
     }
-    this.tasks.removeAll(tasks);
-  }
 
-  @Override
-  public void startTasks() {
-    if (!isEnabled()) {
-      throw new IllegalStateException();
+    @Override
+    public void addTasks(Collection<Component> tasks) {
+        if (isEnabled()) {
+            throw new IllegalStateException();
+        }
+        this.tasks.addAll(tasks);
     }
-    for (Runnable task : tasks) {
-      BasicWorkerThread thread = new BasicWorkerThread(task, affinity);
-      thread.setName(task.toString());
-      threads.add(thread);
-      thread.enable();
-      thread.start();
-    }
-  }
 
-  @Override
-  public void stopTasks() {
-    if (isEnabled()) {
-      throw new IllegalStateException();
+    @Override
+    public void removeTasks(Collection<Component> tasks) {
+        if (isEnabled()) {
+            throw new IllegalStateException();
+        }
+        this.tasks.removeAll(tasks);
     }
-    for (BasicWorkerThread thread : threads) {
-      try {
-        thread.disable();
-        thread.join();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-        Thread.currentThread().interrupt();
-      }
-    }
-  }
 
-  @Override
-  public void enable() {
-    for (Component task : tasks) {
-      task.enable();
+    @Override
+    public void startTasks() {
+        if (!isEnabled()) {
+            throw new IllegalStateException();
+        }
+        for (Runnable task : tasks) {
+            BasicWorkerThread thread = new BasicWorkerThread(task, affinity);
+            thread.setName(task.toString());
+            threads.add(thread);
+            thread.enable();
+            thread.start();
+        }
     }
-    this.enabled = true;
-    LOGGER.info("Basic Scheduling Enabled");
-  }
 
-  @Override
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
-  @Override
-  public void disable() {
-    this.enabled = false;
-    for (Component task : tasks) {
-      task.disable();
+    @Override
+    public void stopTasks() {
+        if (isEnabled()) {
+            throw new IllegalStateException();
+        }
+        for (BasicWorkerThread thread : threads) {
+            try {
+                thread.disable();
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
+        }
     }
-  }
+
+    @Override
+    public void enable() {
+        for (Component task : tasks) {
+            task.enable();
+        }
+        this.enabled = true;
+        LOGGER.info("Basic Scheduling Enabled");
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    @Override
+    public void disable() {
+        this.enabled = false;
+        for (Component task : tasks) {
+            task.disable();
+        }
+    }
 
 }
-

@@ -34,40 +34,35 @@ import query.Query;
 
 public class TextFlatMap {
 
-  public static void main(String[] args) {
+    public static void main(String[] args) {
 
-    final String reportFolder = args[0];
-    final String inputFile = args[1];
-    final String outputFile = reportFolder + File.separator + "TextFlatMap.out.csv";
+        final String reportFolder = args[0];
+        final String inputFile = args[1];
+        final String outputFile = reportFolder + File.separator + "TextFlatMap.out.csv";
 
-    Query q = new Query();
+        Query q = new Query();
 
-    Source<String> i1 = q.addTextFileSource("I1", inputFile);
+        Source<String> i1 = q.addTextFileSource("I1", inputFile);
 
-    Operator<String, MyTuple> inputReader =
-        q.addMapOperator(
-            "map",
-            line -> {
-              Util.sleep(100);
-              String[] tokens = line.split(",");
-              return new MyTuple(
-                  Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
-            });
-
-    Operator<MyTuple, MyTuple> multiply = q
-        .addFlatMapOperator("multiply", tuple -> {
-          List<MyTuple> result = new LinkedList<MyTuple>();
-          result.add(new MyTuple(tuple.timestamp, tuple.key, tuple.value * 2));
-          result.add(new MyTuple(tuple.timestamp, tuple.key, tuple.value * 3));
-          result.add(new MyTuple(tuple.timestamp, tuple.key, tuple.value * 4));
-          return result;
+        Operator<String, MyTuple> inputReader = q.addMapOperator("map", line -> {
+            Util.sleep(100);
+            String[] tokens = line.split(",");
+            return new MyTuple(Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
         });
 
-    Sink<MyTuple> o1 = q.addTextFileSink("o1", outputFile, true);
+        Operator<MyTuple, MyTuple> multiply = q.addFlatMapOperator("multiply", tuple -> {
+            List<MyTuple> result = new LinkedList<MyTuple>();
+            result.add(new MyTuple(tuple.timestamp, tuple.key, tuple.value * 2));
+            result.add(new MyTuple(tuple.timestamp, tuple.key, tuple.value * 3));
+            result.add(new MyTuple(tuple.timestamp, tuple.key, tuple.value * 4));
+            return result;
+        });
 
-    q.connect(i1, inputReader).connect(inputReader, multiply).connect(multiply, o1);
+        Sink<MyTuple> o1 = q.addTextFileSink("o1", outputFile, true);
 
-    q.activate();
-  }
+        q.connect(i1, inputReader).connect(inputReader, multiply).connect(multiply, o1);
+
+        q.activate();
+    }
 
 }

@@ -24,16 +24,16 @@
 package common.tuple;
 
 /**
- * Tuple object that has a key, a timestamp and a stimulus time (e.g. the time it entered the
- * system).
+ * Tuple object that has a key, a timestamp and a stimulus time (e.g. the time
+ * it entered the system).
  */
 public interface RichTuple {
 
-  long getTimestamp();
+    long getTimestamp();
 
-  String getKey();
+    String getKey();
 
-  default long getStimulus() {
-    throw new UnsupportedOperationException();
-  }
+    default long getStimulus() {
+        throw new UnsupportedOperationException();
+    }
 }

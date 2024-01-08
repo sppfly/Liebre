@@ -31,4 +31,5 @@ import java.util.function.Consumer;
  *
  * @param <IN> The type of input tuples.
  */
-public interface SinkFunction<IN> extends ComponentFunction, Consumer<IN> {}
+public interface SinkFunction<IN> extends ComponentFunction, Consumer<IN> {
+}

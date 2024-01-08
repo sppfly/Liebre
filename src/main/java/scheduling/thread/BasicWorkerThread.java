@@ -31,28 +31,28 @@ import net.openhft.affinity.Affinity;
  */
 public class BasicWorkerThread extends LiebreThread {
 
-  private final Runnable task;
-  private final BitSet affinity;
+    private final Runnable task;
+    private final BitSet affinity;
 
-  public BasicWorkerThread(Runnable task) {
-    this(task, null);
-  }
-
-  public BasicWorkerThread(Runnable task, BitSet affinity) {
-    this.task = task;
-    this.affinity = affinity;
-  }
-
-  @Override
-  public void run() {
-    if (affinity != null) {
-      Affinity.setAffinity(affinity);
+    public BasicWorkerThread(Runnable task) {
+        this(task, null);
     }
-    super.run();
-  }
 
-  @Override
-  public void doRun() {
-    task.run();
-  }
+    public BasicWorkerThread(Runnable task, BitSet affinity) {
+        this.task = task;
+        this.affinity = affinity;
+    }
+
+    @Override
+    public void run() {
+        if (affinity != null) {
+            Affinity.setAffinity(affinity);
+        }
+        super.run();
+    }
+
+    @Override
+    public void doRun() {
+        task.run();
+    }
 }

@@ -25,37 +25,37 @@ package common.metrics;
 
 /** Statistic that records the per-second sum of the recorded value. */
 public class FileCountMetric extends AbstractFileMetric {
-  private long count;
-  long prevSec;
+    private long count;
+    long prevSec;
 
-  public FileCountMetric(String id, String folder, boolean autoFlush) {
-    super(id, folder, autoFlush);
-  }
-
-  @Override
-  protected void doRecord(long v) {
-    writePreviousCounts();
-    count += v;
-  }
-
-  @Override
-  public void enable() {
-    this.count = 0;
-    this.prevSec = currentTimeSeconds();
-    super.enable();
-  }
-
-  public void disable() {
-    writePreviousCounts();
-    super.disable();
-  }
-
-  private void writePreviousCounts() {
-    long thisSec = currentTimeSeconds();
-    while (prevSec < thisSec) {
-      writeCSVLine(prevSec, count);
-      count = 0;
-      prevSec++;
+    public FileCountMetric(String id, String folder, boolean autoFlush) {
+        super(id, folder, autoFlush);
     }
-  }
+
+    @Override
+    protected void doRecord(long v) {
+        writePreviousCounts();
+        count += v;
+    }
+
+    @Override
+    public void enable() {
+        this.count = 0;
+        this.prevSec = currentTimeSeconds();
+        super.enable();
+    }
+
+    public void disable() {
+        writePreviousCounts();
+        super.disable();
+    }
+
+    private void writePreviousCounts() {
+        long thisSec = currentTimeSeconds();
+        while (prevSec < thisSec) {
+            writeCSVLine(prevSec, count);
+            count = 0;
+            prevSec++;
+        }
+    }
 }

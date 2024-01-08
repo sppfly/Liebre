@@ -26,30 +26,34 @@ package common.metrics;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 
-/** Statistic that records the sum of the recorded value and resets when the metric is read. */
+/**
+ * Statistic that records the sum of the recorded value and resets when the
+ * metric is read.
+ */
 class DropwizardCountMetric extends AbstractMetric implements Metric {
 
-  static class ResettingCounter extends Counter {
-    private final Object lock = new Object();
-    @Override
-    public long getCount() {
-      synchronized (lock) {
-        long count = super.getCount();
-        dec(count);
-        return count;
-      }
+    static class ResettingCounter extends Counter {
+        private final Object lock = new Object();
+
+        @Override
+        public long getCount() {
+            synchronized (lock) {
+                long count = super.getCount();
+                dec(count);
+                return count;
+            }
+        }
     }
-  }
 
-  private final Counter counter;
+    private final Counter counter;
 
-  public DropwizardCountMetric(String id, MetricRegistry metricRegistry) {
-    super(id);
-    counter = metricRegistry.counter(id, ResettingCounter::new);
-  }
+    public DropwizardCountMetric(String id, MetricRegistry metricRegistry) {
+        super(id);
+        counter = metricRegistry.counter(id, ResettingCounter::new);
+    }
 
-  @Override
-  protected void doRecord(long v) {
-    counter.inc(v);
-  }
+    @Override
+    protected void doRecord(long v) {
+        counter.inc(v);
+    }
 }

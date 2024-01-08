@@ -35,45 +35,44 @@ import stream.Stream;
  * @param <OUT> The type of output tuples.
  * @author palivosd
  */
-public abstract class BaseOperator1In<IN, OUT> extends AbstractOperator<IN, OUT>
-    implements Operator1In<IN, OUT> {
+public abstract class BaseOperator1In<IN, OUT> extends AbstractOperator<IN, OUT> implements Operator1In<IN, OUT> {
 
-  /**
-   * Construct.
-   *
-   * @param id The unique id of this component.
-   */
-  public BaseOperator1In(String id) {
-    super(id, ComponentType.OPERATOR);
-  }
-
-  @Override
-  protected final void process() {
-    if (isFlushed()) {
-      return;
+    /**
+     * Construct.
+     *
+     * @param id The unique id of this component.
+     */
+    public BaseOperator1In(String id) {
+        super(id, ComponentType.OPERATOR);
     }
 
-    Stream<IN> input = getInput();
-    Stream<OUT> output = getOutput();
-
-    IN inTuple = input.getNextTuple(getIndex());
-
-    if (isStreamFinished(inTuple, input)) {
-      flush();
-      return;
-    }
-
-    if (inTuple != null) {
-      increaseTuplesRead();
-      List<OUT> outTuples = processTupleIn1(inTuple);
-      if (outTuples != null) {
-        for (OUT t : outTuples) {
-          increaseTuplesWritten();
-          output.addTuple(t, getIndex());
+    @Override
+    protected final void process() {
+        if (isFlushed()) {
+            return;
         }
-      }
-    }
 
-  }
+        Stream<IN> input = getInput();
+        Stream<OUT> output = getOutput();
+
+        IN inTuple = input.getNextTuple(getIndex());
+
+        if (isStreamFinished(inTuple, input)) {
+            flush();
+            return;
+        }
+
+        if (inTuple != null) {
+            increaseTuplesRead();
+            List<OUT> outTuples = processTupleIn1(inTuple);
+            if (outTuples != null) {
+                for (OUT t : outTuples) {
+                    increaseTuplesWritten();
+                    output.addTuple(t, getIndex());
+                }
+            }
+        }
+
+    }
 
 }

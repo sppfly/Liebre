@@ -29,45 +29,45 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 
 /**
- * Operator implementation that applies {@link FilterFunction}s to streams. A {@link FilterOperator}
- * decides whether tuples should be forwarded further or not in the stream by applying a boolean
- * predicate to each one of them.
+ * Operator implementation that applies {@link FilterFunction}s to streams. A
+ * {@link FilterOperator} decides whether tuples should be forwarded further or
+ * not in the stream by applying a boolean predicate to each one of them.
  *
  * @param <T> The type of the tuples.
  */
 public class FilterOperator<T> extends BaseOperator1In<T, T> {
 
-  protected FilterFunction<T> filter;
+    protected FilterFunction<T> filter;
 
-  public FilterOperator(String id, FilterFunction<T> filter) {
-    super(id);
-    Validate.notNull(filter, "filter");
-    this.filter = filter;
-  }
-
-  @Override
-  public void enable() {
-    filter.enable();
-    super.enable();
-  }
-
-  @Override
-  public void disable() {
-    super.disable();
-    filter.disable();
-  }
-
-  @Override
-  public List<T> processTupleIn1(T tuple) {
-    List<T> result = new LinkedList<T>();
-    if (filter.test(tuple)) {
-      result.add(tuple);
+    public FilterOperator(String id, FilterFunction<T> filter) {
+        super(id);
+        Validate.notNull(filter, "filter");
+        this.filter = filter;
     }
-    return result;
-  }
 
-  @Override
-  public boolean canRun() {
-    return filter.canRun() && super.canRun();
-  }
+    @Override
+    public void enable() {
+        filter.enable();
+        super.enable();
+    }
+
+    @Override
+    public void disable() {
+        super.disable();
+        filter.disable();
+    }
+
+    @Override
+    public List<T> processTupleIn1(T tuple) {
+        List<T> result = new LinkedList<T>();
+        if (filter.test(tuple)) {
+            result.add(tuple);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean canRun() {
+        return filter.canRun() && super.canRun();
+    }
 }

@@ -31,7 +31,8 @@ import io.palyvos.haren.Task;
 import scheduling.haren.HarenFeatureTranslator;
 
 /**
- * Base interface for all stream components such as Sources, Sinks and Operators.
+ * Base interface for all stream components such as Sources, Sinks and
+ * Operators.
  *
  * @author palivosd
  * @see Active
@@ -41,84 +42,83 @@ import scheduling.haren.HarenFeatureTranslator;
  */
 public interface Component extends Active, Runnable, Named, Task {
 
-  /**
-   * The input {@link ConnectionsNumber} of this component. Used to enforce invariants during
-   * query construction.
-   *
-   * @return The input {@link ConnectionsNumber} of this component.
-   */
-  ConnectionsNumber inputsNumber();
+    /**
+     * The input {@link ConnectionsNumber} of this component. Used to enforce
+     * invariants during query construction.
+     *
+     * @return The input {@link ConnectionsNumber} of this component.
+     */
+    ConnectionsNumber inputsNumber();
 
-  /**
-   * The output {@link ConnectionsNumber} of this component. Used to enforce invariants during
-   * query construction.
-   *
-   * @return The output {@link ConnectionsNumber} of this component.
-   */
-  ConnectionsNumber outputsNumber();
+    /**
+     * The output {@link ConnectionsNumber} of this component. Used to enforce
+     * invariants during query construction.
+     *
+     * @return The output {@link ConnectionsNumber} of this component.
+     */
+    ConnectionsNumber outputsNumber();
 
-  int getTopologicalOrder();
+    int getTopologicalOrder();
 
-  double getCost();
+    double getCost();
 
-  double getSelectivity();
+    double getSelectivity();
 
-  double getRate();
+    double getRate();
 
-  default long getInputQueueSize() {
-    // Sources can always run
-    return HarenFeatureTranslator.MAX_QUEUE_SIZE;
-  }
-
-  default long getOutputQueueSize() {
-    // Sinks can always run
-   return 0;
-  }
-
-  /**
-   * Update the metrics  (e.g. cost and selectivity) based on the execution statistics of the
-   * operator.
-   * <br/>
-   * <b>WARNING: The variables for the metrics are available only the execution happens with
-   * {@link #runFor(int)}
-   * !</b> <br/>
-   * <b>WARNING: This is not thread safe! It should either be run from the operator thread or
-   * from another thread while the operator is stopped. The results are visible to all threads.</b>
-   */
-  void updateMetrics();
-
-  ComponentType getType();
-
-  int getPriority();
-
-  default double getAverageArrivalTime() {
-    return HarenFeatureTranslator.NO_ARRIVAL_TIME;
-  }
-
-  default double getHeadArrivalTime() {
-    return HarenFeatureTranslator.NO_ARRIVAL_TIME;
-  }
-
-  @Override
-  default void updateFeatures(Feature[] features, double[] output) {
-    for (Feature feature : features) {
-      output[feature.index()] = HarenFeatureTranslator.get(feature, this);
+    default long getInputQueueSize() {
+        // Sources can always run
+        return HarenFeatureTranslator.MAX_QUEUE_SIZE;
     }
-  }
 
-  @Override
-  default void refreshFeatures() {
-    updateMetrics();
-  }
+    default long getOutputQueueSize() {
+        // Sinks can always run
+        return 0;
+    }
 
-  @Override
-  default List<Component> getUpstream() {
-    return Collections.emptyList();
-  }
+    /**
+     * Update the metrics (e.g. cost and selectivity) based on the execution
+     * statistics of the operator. <br/>
+     * <b>WARNING: The variables for the metrics are available only the execution
+     * happens with {@link #runFor(int)} !</b> <br/>
+     * <b>WARNING: This is not thread safe! It should either be run from the
+     * operator thread or from another thread while the operator is stopped. The
+     * results are visible to all threads.</b>
+     */
+    void updateMetrics();
 
-  @Override
-  default List<Component> getDownstream() {
-    return Collections.emptyList();
-  }
+    ComponentType getType();
+
+    int getPriority();
+
+    default double getAverageArrivalTime() {
+        return HarenFeatureTranslator.NO_ARRIVAL_TIME;
+    }
+
+    default double getHeadArrivalTime() {
+        return HarenFeatureTranslator.NO_ARRIVAL_TIME;
+    }
+
+    @Override
+    default void updateFeatures(Feature[] features, double[] output) {
+        for (Feature feature : features) {
+            output[feature.index()] = HarenFeatureTranslator.get(feature, this);
+        }
+    }
+
+    @Override
+    default void refreshFeatures() {
+        updateMetrics();
+    }
+
+    @Override
+    default List<Component> getUpstream() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    default List<Component> getDownstream() {
+        return Collections.emptyList();
+    }
 
 }

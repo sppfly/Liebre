@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public interface IncreasingUID extends Serializable {
 
-  String increaseAndGet();
+    String increaseAndGet();
 
-  void update();
+    void update();
 
 }

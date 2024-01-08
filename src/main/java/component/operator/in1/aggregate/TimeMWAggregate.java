@@ -31,33 +31,29 @@ import java.util.List;
 import java.util.TreeMap;
 
 /**
- * Aggregate implementation for sliding time-based windows. Decides which tuples belong to which
- * windows and takes care of producing aggregation results by delegating to a provided {@link
- * TimeWindowAddRemove} implementation.
+ * Aggregate implementation for sliding time-based windows. Decides which tuples
+ * belong to which windows and takes care of producing aggregation results by
+ * delegating to a provided {@link TimeWindowAddRemove} implementation.
  *
  * @param <IN>  The type of input tuples.
  * @param <OUT> The type of output tuples.
  */
-public class TimeMWAggregate<IN extends RichTuple, OUT extends RichTuple>
-        extends TimeAggregate<IN, OUT> {
+public class TimeMWAggregate<IN extends RichTuple, OUT extends RichTuple> extends TimeAggregate<IN, OUT> {
 
-//    protected final long WS_WA_ceil;
+    // protected final long WS_WA_ceil;
     protected TimeWindowAdd<IN, OUT> aggregateWindow;
-    //    protected long WS_WA_ceil_minus_1;
+    // protected long WS_WA_ceil_minus_1;
     TreeMap<Long, HashMap<String, TimeWindowAdd<IN, OUT>>> windows;
 
-    public TimeMWAggregate(
-            String id,
-            int instance,
-            int parallelismDegree,
-            long windowSize,
-            long windowSlide,
+    public TimeMWAggregate(String id, int instance, int parallelismDegree, long windowSize, long windowSlide,
             TimeWindowAdd<IN, OUT> aggregateWindow) {
         super(id, instance, parallelismDegree, windowSize, windowSlide, aggregateWindow, new BaseKeyExtractor());
         TimeMWAggregate.this.windows = new TreeMap<>();
         this.aggregateWindow = aggregateWindow;
-//        this.WS_WA_ceil = (long) Math.ceil((double) TimeBasedMultiWindowAggregate.this.WS / (double) TimeBasedMultiWindowAggregate.this.WA);
-//        this.WS_WA_ceil_minus_1 = TimeBasedMultiWindowAggregate.this.WS_WA_ceil - 1;
+        // this.WS_WA_ceil = (long) Math.ceil((double)
+        // TimeBasedMultiWindowAggregate.this.WS / (double)
+        // TimeBasedMultiWindowAggregate.this.WA);
+        // this.WS_WA_ceil_minus_1 = TimeBasedMultiWindowAggregate.this.WS_WA_ceil - 1;
     }
 
     public List<OUT> processTupleIn1(IN t) {
@@ -81,7 +77,7 @@ public class TimeMWAggregate<IN extends RichTuple, OUT extends RichTuple>
                 // Produce results for stale windows
                 for (TimeWindowAdd<IN, OUT> w : windows.get(earliestWinStartTS).values()) {
                     OUT outT = w.getAggregatedResult();
-                    if (outT!=null) {
+                    if (outT != null) {
                         result.add(outT);
                     }
                 }
