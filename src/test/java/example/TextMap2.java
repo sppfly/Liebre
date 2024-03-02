@@ -32,50 +32,44 @@ import query.Query;
 
 public class TextMap2 {
 
-  public static void main(String[] args) {
-    final String reportFolder = args[0];
-    final String inputFile = args[1];
-    final String outputFile = reportFolder + File.separator + "TextMap2.out.csv";
+    public static void main(String[] args) {
+        final String reportFolder = args[0];
+        final String inputFile = args[1];
+        final String outputFile = reportFolder + File.separator + "TextMap2.out.csv";
 
+        Query q = new Query();
 
-    Query q = new Query();
+        Source<String> i1 = q.addTextFileSource("I1", inputFile);
 
-    Source<String> i1 = q.addTextFileSource("I1", inputFile);
+        Operator<String, MyTuple> inputReader = q.addMapOperator("map", line -> {
+            Util.sleep(100);
+            String[] tokens = line.split(",");
+            return new MyTuple(Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
+        });
 
-    Operator<String, MyTuple> inputReader =
-        q.addMapOperator(
-            "map",
-            line -> {
-              Util.sleep(100);
-              String[] tokens = line.split(",");
-              return new MyTuple(
-                  Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
-            });
+        Operator<MyTuple, OutputTuple> transform = q.addMapOperator("transform", tuple -> new OutputTuple(tuple));
 
-    Operator<MyTuple, OutputTuple> transform =
-        q.addMapOperator("transform", tuple -> new OutputTuple(tuple));
+        Sink<OutputTuple> o1 = q.addTextFileSink("o1", outputFile, true);
 
-    Sink<OutputTuple> o1 = q.addTextFileSink("o1", outputFile, true);
+        q.connect(i1, inputReader).connect(inputReader, transform).connect(transform, o1);
 
-    q.connect(i1, inputReader).connect(inputReader, transform).connect(transform, o1);
-
-    q.activate();
-  }
-
-  private static class OutputTuple {
-
-    public long timestamp;
-    public int key;
-    public int valueA;
-    public int valueB;
-    public int valueC;
-
-    public OutputTuple(MyTuple t) {
-      this.timestamp = t.timestamp;
-      this.key = t.key;
-      this.valueA = t.value * 2;
-      this.valueB = t.value / 2;
-      this.valueC = t.value + 10;
+        q.activate();
     }
-  }
+
+    private static class OutputTuple {
+
+        public long timestamp;
+        public int key;
+        public int valueA;
+        public int valueB;
+        public int valueC;
+
+        public OutputTuple(MyTuple t) {
+            this.timestamp = t.timestamp;
+            this.key = t.key;
+            this.valueA = t.value * 2;
+            this.valueB = t.value / 2;
+            this.valueC = t.value + 10;
+        }
+    }
 }

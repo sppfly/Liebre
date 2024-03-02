@@ -4,12 +4,13 @@ import common.tuple.RichTuple;
 
 import java.util.LinkedList;
 
-public class TimeWindowAddRemoveWrapper<IN extends RichTuple, OUT extends RichTuple> implements TimeWindowAddSlide<IN,OUT> {
+public class TimeWindowAddRemoveWrapper<IN extends RichTuple, OUT extends RichTuple>
+        implements TimeWindowAddSlide<IN, OUT> {
 
-    private TimeWindowAddRemove<IN,OUT> w;
+    private TimeWindowAddRemove<IN, OUT> w;
     LinkedList<IN> tuples;
 
-    public TimeWindowAddRemoveWrapper(TimeWindowAddRemove<IN,OUT> w) {
+    public TimeWindowAddRemoveWrapper(TimeWindowAddRemove<IN, OUT> w) {
         this.w = w;
         tuples = new LinkedList<>();
     }
@@ -61,6 +62,6 @@ public class TimeWindowAddRemoveWrapper<IN extends RichTuple, OUT extends RichTu
 
     @Override
     public boolean isEmpty() {
-        return tuples.size()==0;
+        return tuples.size() == 0;
     }
 }

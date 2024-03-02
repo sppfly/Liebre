@@ -45,28 +45,24 @@ public class ParallelOperator {
 
         Query q = new Query();
 
-        Source<MyTuple> source1 = q.addBaseSource("S1",
-                new SourceFunction<MyTuple>() {
-                    private final Random r = new Random();
+        Source<MyTuple> source1 = q.addBaseSource("S1", new SourceFunction<MyTuple>() {
+            private final Random r = new Random();
 
-                    @Override
-                    public MyTuple get() {
-                        Util.sleep(1000 + r.nextInt(1000));
-                        return new MyTuple(System.currentTimeMillis(), "",
-                                "S1", r.nextInt(100));
-                    }
-                });
-        Source<MyTuple> source2 = q.addBaseSource("S2",
-                new SourceFunction<MyTuple>() {
-                    private final Random r = new Random();
+            @Override
+            public MyTuple get() {
+                Util.sleep(1000 + r.nextInt(1000));
+                return new MyTuple(System.currentTimeMillis(), "", "S1", r.nextInt(100));
+            }
+        });
+        Source<MyTuple> source2 = q.addBaseSource("S2", new SourceFunction<MyTuple>() {
+            private final Random r = new Random();
 
-                    @Override
-                    public MyTuple get() {
-                        Util.sleep(1000 + r.nextInt(1000));
-                        return new MyTuple(System.currentTimeMillis(), "",
-                                "S2", r.nextInt(100));
-                    }
-                });
+            @Override
+            public MyTuple get() {
+                Util.sleep(1000 + r.nextInt(1000));
+                return new MyTuple(System.currentTimeMillis(), "", "S2", r.nextInt(100));
+            }
+        });
 
         List<Operator<MyTuple, MyTuple>> maps = q.addMapOperator("map", new MapFunction<MyTuple, MyTuple>() {
             @Override
@@ -76,8 +72,7 @@ public class ParallelOperator {
             }
         }, 3);
 
-        Sink<MyTuple> sink = q.addBaseSink("O1",
-                tuple -> System.out.println(tuple));
+        Sink<MyTuple> sink = q.addBaseSink("O1", tuple -> System.out.println(tuple));
 
         q.connect(Arrays.asList(source1, source2), maps).connect(maps, Arrays.asList(sink));
 

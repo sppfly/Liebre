@@ -34,91 +34,85 @@ import query.Query;
 
 public class TextAggregate {
 
-  public static void main(String[] args) {
-    final String reportFolder = args[0];
-    final String inputFile = args[1];
-    final String outputFile = args[2];
-    final long WINDOW_SIZE = 100;
-    final long WINDOW_SLIDE = 20;
+    public static void main(String[] args) {
+        final String reportFolder = args[0];
+        final String inputFile = args[1];
+        final String outputFile = args[2];
+        final long WINDOW_SIZE = 100;
+        final long WINDOW_SLIDE = 20;
 
+        Query q = new Query();
 
-    Query q = new Query();
+        Source<String> i1 = q.addTextFileSource("I1", inputFile);
 
-    Source<String> i1 = q.addTextFileSource("I1", inputFile);
+        Operator<String, InputTuple> inputReader = q.addMapOperator("map", line -> {
+            String[] tokens = line.split(",");
+            return new InputTuple(Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
+        });
 
-    Operator<String, InputTuple> inputReader =
-        q.addMapOperator(
-            "map",
-            line -> {
-              String[] tokens = line.split(",");
-              return new InputTuple(
-                  Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
-            });
+        Operator<InputTuple, OutputTuple> aggregate = q.addTimeAggregateOperator("aggOp", WINDOW_SIZE, WINDOW_SLIDE,
+                new AverageWindow());
 
-    Operator<InputTuple, OutputTuple> aggregate =
-        q.addTimeAggregateOperator("aggOp", WINDOW_SIZE, WINDOW_SLIDE, new AverageWindow());
+        Sink<OutputTuple> o1 = q.addTextFileSink("o1", outputFile, true);
 
-    Sink<OutputTuple> o1 = q.addTextFileSink("o1", outputFile, true);
+        q.connect(i1, inputReader).connect(inputReader, aggregate).connect(aggregate, o1);
 
-    q.connect(i1, inputReader).connect(inputReader, aggregate).connect(aggregate, o1);
-
-    q.activate();
-  }
-
-  private static class InputTuple extends BaseRichTuple {
-
-    public int value;
-
-    public InputTuple(long timestamp, int key, int value) {
-      super(timestamp, key + "");
-      this.value = value;
-    }
-  }
-
-  private static class OutputTuple extends BaseRichTuple {
-
-    public int count;
-    public double average;
-
-    public OutputTuple(long timestamp, int key, int count, double average) {
-      super(timestamp, key + "");
-      this.count = count;
-      this.average = average;
+        q.activate();
     }
 
-    @Override
-    public String toString() {
-      return timestamp + "," + key + "," + count +
-              "," + average;
-    }
-  }
+    private static class InputTuple extends BaseRichTuple {
 
-  private static class AverageWindow extends BaseTimeWindowAddRemove<InputTuple, OutputTuple> {
+        public int value;
 
-    private double count = 0;
-    private double sum = 0;
-
-    @Override
-    public void add(InputTuple t) {
-      count++;
-      sum += t.value;
+        public InputTuple(long timestamp, int key, int value) {
+            super(timestamp, key + "");
+            this.value = value;
+        }
     }
 
-    @Override
-    public void remove(InputTuple t) {
-      count--;
-      sum -= t.value;
+    private static class OutputTuple extends BaseRichTuple {
+
+        public int count;
+        public double average;
+
+        public OutputTuple(long timestamp, int key, int count, double average) {
+            super(timestamp, key + "");
+            this.count = count;
+            this.average = average;
+        }
+
+        @Override
+        public String toString() {
+            return timestamp + "," + key + "," + count + "," + average;
+        }
     }
 
-    @Override
-    public OutputTuple getAggregatedResult() {
-      double average = count > 0 ? sum / count : 0;
-      return new OutputTuple(startTimestamp, Integer.valueOf(key), (int) count, average);
-    }
+    private static class AverageWindow extends BaseTimeWindowAddRemove<InputTuple, OutputTuple> {
 
-    @Override
-    public TimeWindowAddRemove<InputTuple, OutputTuple> factory() {
-      return new AverageWindow();
+        private double count = 0;
+        private double sum = 0;
+
+        @Override
+        public void add(InputTuple t) {
+            count++;
+            sum += t.value;
+        }
+
+        @Override
+        public void remove(InputTuple t) {
+            count--;
+            sum -= t.value;
+        }
+
+        @Override
+        public OutputTuple getAggregatedResult() {
+            double average = count > 0 ? sum / count : 0;
+            return new OutputTuple(startTimestamp, Integer.valueOf(key), (int) count, average);
+        }
+
+        @Override
+        public TimeWindowAddRemove<InputTuple, OutputTuple> factory() {
+            return new AverageWindow();
+        }
     }
-  }
 }

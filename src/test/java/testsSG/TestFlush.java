@@ -39,64 +39,55 @@ import java.util.Random;
 
 public class TestFlush {
 
-
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
 
         Query q = new Query();
         // q.activateStatistics(reportFolder);
-        Source<MyTuple> source1 = q.addBaseSource("S1",
-                new SourceFunction<MyTuple>() {
-                    private final Random r = new Random();
-                    private long ts = 0;
+        Source<MyTuple> source1 = q.addBaseSource("S1", new SourceFunction<MyTuple>() {
+            private final Random r = new Random();
+            private long ts = 0;
 
-                    @Override
-                    public MyTuple get() {
-                        Util.sleep(1000);
-                        MyTuple t = new MyTuple(ts, "",
-                                "S1", r.nextInt(100));
-                        System.out.println("Sending " + t);
-                        ts++;
-                        return t;
-                    }
-                });
-        Source<MyTuple> source2 = q.addBaseSource("S2",
-                new SourceFunction<MyTuple>() {
-                    private final Random r = new Random();
-                    private long ts = 0;
+            @Override
+            public MyTuple get() {
+                Util.sleep(1000);
+                MyTuple t = new MyTuple(ts, "", "S1", r.nextInt(100));
+                System.out.println("Sending " + t);
+                ts++;
+                return t;
+            }
+        });
+        Source<MyTuple> source2 = q.addBaseSource("S2", new SourceFunction<MyTuple>() {
+            private final Random r = new Random();
+            private long ts = 0;
 
-                    @Override
-                    public MyTuple get() {
-                        Util.sleep(1000);
-                        MyTuple t = new MyTuple(ts, "",
-                                "S2", r.nextInt(100));
-                        System.out.println("Sending " + t);
-                        ts++;
-                        return t;
-                    }
-                });
+            @Override
+            public MyTuple get() {
+                Util.sleep(1000);
+                MyTuple t = new MyTuple(ts, "", "S2", r.nextInt(100));
+                System.out.println("Sending " + t);
+                ts++;
+                return t;
+            }
+        });
 
-        Operator<MyTuple, MyTuple> multiply = q
-                .addOperator(new BaseOperator1In<MyTuple, MyTuple>("M") {
+        Operator<MyTuple, MyTuple> multiply = q.addOperator(new BaseOperator1In<MyTuple, MyTuple>("M") {
 
-                    long lastTimestamp = -1;
+            long lastTimestamp = -1;
 
-                    @Override
-                    public List<MyTuple> processTupleIn1(MyTuple tuple) {
-                        assert lastTimestamp == -1 || (tuple.getTimestamp() >= lastTimestamp);
-                        lastTimestamp = tuple.getTimestamp();
-                        List<MyTuple> result = new LinkedList<MyTuple>();
-                        result.add(new MyTuple(tuple.getTimestamp(), tuple
-                                .getKey(), tuple.source, tuple.value * 2));
-                        return result;
-                    }
-                });
+            @Override
+            public List<MyTuple> processTupleIn1(MyTuple tuple) {
+                assert lastTimestamp == -1 || (tuple.getTimestamp() >= lastTimestamp);
+                lastTimestamp = tuple.getTimestamp();
+                List<MyTuple> result = new LinkedList<MyTuple>();
+                result.add(new MyTuple(tuple.getTimestamp(), tuple.getKey(), tuple.source, tuple.value * 2));
+                return result;
+            }
+        });
 
-        Sink<MyTuple> sink = q.addBaseSink("O1",
-                tuple -> System.out.println("Received " + tuple));
+        Sink<MyTuple> sink = q.addBaseSink("O1", tuple -> System.out.println("Received " + tuple));
 
-        q.connect(Arrays.asList(source1, source2), Arrays.asList(multiply))
-                .connect(multiply, sink);
+        q.connect(Arrays.asList(source1, source2), Arrays.asList(multiply)).connect(multiply, sink);
 
         q.activate();
         System.out.println("Sleeping 10 seconds");

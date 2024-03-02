@@ -34,15 +34,15 @@ import java.util.function.Supplier;
  */
 public interface SourceFunction<OUT> extends ComponentFunction, Supplier<OUT> {
 
-  default double getHeadArrivalTime() {
-    return HarenFeatureTranslator.NO_ARRIVAL_TIME;
-  }
+    default double getHeadArrivalTime() {
+        return HarenFeatureTranslator.NO_ARRIVAL_TIME;
+    }
 
-  default double getAverageArrivalTime() {
-    return HarenFeatureTranslator.NO_ARRIVAL_TIME;
-  }
+    default double getAverageArrivalTime() {
+        return HarenFeatureTranslator.NO_ARRIVAL_TIME;
+    }
 
-  default boolean isInputFinished() {
-    return false;
-  }
+    default boolean isInputFinished() {
+        return false;
+    }
 }

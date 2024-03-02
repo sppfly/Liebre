@@ -34,6 +34,6 @@ import stream.Stream;
  */
 public interface RouterOperator<T> extends Operator<T, T> {
 
-  Collection<? extends Stream<T>> chooseOutputs(T tuple);
+    Collection<? extends Stream<T>> chooseOutputs(T tuple);
 
 }

@@ -4,11 +4,11 @@ import common.Active;
 
 public interface Metric extends Active {
 
-  void record(long value);
+    void record(long value);
 
-  void ping();
+    void ping();
 
-  void reset();
+    void reset();
 
-  String id();
+    String id();
 }

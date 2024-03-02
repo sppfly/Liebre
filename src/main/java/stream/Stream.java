@@ -30,37 +30,37 @@ import common.Named;
 import java.util.List;
 
 /**
- * An ordered one-on-one stream that connects exactly one {@link StreamProducer} and one {@link
- * StreamConsumer}.
+ * An ordered one-on-one stream that connects exactly one {@link StreamProducer}
+ * and one {@link StreamConsumer}.
  *
  * @param <T> The type of values that can be transferred inside the stream
  */
 public interface Stream<T> extends Active, Named {
 
-  void addTuple(T tuple, int producerIndex);
+    void addTuple(T tuple, int producerIndex);
 
-  boolean offer(T tuple, int producerIndex);
+    boolean offer(T tuple, int producerIndex);
 
-  T getNextTuple(int consumerIndex);
+    T getNextTuple(int consumerIndex);
 
-  T peek(int consumerIndex);
+    T peek(int consumerIndex);
 
-  int remainingCapacity();
+    int remainingCapacity();
 
-  int size();
+    int size();
 
-  List<? extends StreamProducer<T>> producers();
+    List<? extends StreamProducer<T>> producers();
 
-  List<? extends StreamConsumer<T>> consumers();
+    List<? extends StreamConsumer<T>> consumers();
 
-  void resetArrivalTime();
+    void resetArrivalTime();
 
-  double averageArrivalTime();
+    double averageArrivalTime();
 
-  void flush();
+    void flush();
 
-  void clear();
+    void clear();
 
-  boolean isFlushed();
+    boolean isFlushed();
 
 }

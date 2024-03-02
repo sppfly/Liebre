@@ -24,52 +24,55 @@
 package component;
 
 /**
- * Representation of the (abstract) amount of connections that a component can have. Can be used to
- * differentiate behavior when having operators with single or multiple connections respectively.
+ * Representation of the (abstract) amount of connections that a component can
+ * have. Can be used to differentiate behavior when having operators with single
+ * or multiple connections respectively.
  *
  * @author palivosd
  */
 public enum ConnectionsNumber {
-  NONE {
-    @Override
-    protected boolean isValid(int number) {
-      return number == 0;
-    }
-  },
-  ONE {
-    @Override
-    protected boolean isValid(int number) {
-      return number == 1;
-    }
-  },
-  TWO {
-    @Override
-    protected boolean isValid(int number) {
-      return number == 2;
-    }
-  },
-  N {
-    @Override
-    protected boolean isValid(int number) {
-      return number >= 1;
-    }
-  };
+    NONE {
+        @Override
+        protected boolean isValid(int number) {
+            return number == 0;
+        }
+    },
+    ONE {
+        @Override
+        protected boolean isValid(int number) {
+            return number == 1;
+        }
+    },
+    TWO {
+        @Override
+        protected boolean isValid(int number) {
+            return number == 2;
+        }
+    },
+    N {
+        @Override
+        protected boolean isValid(int number) {
+            return number >= 1;
+        }
+    };
 
-  protected abstract boolean isValid(int number);
+    protected abstract boolean isValid(int number);
 
-  /**
-   * Check if this member represents multiple connections
-   * @return {@code true} if connections > 1
-   */
-  public boolean isMultiple() {
-    return this == TWO || this == N;
-  }
+    /**
+     * Check if this member represents multiple connections
+     * 
+     * @return {@code true} if connections > 1
+     */
+    public boolean isMultiple() {
+        return this == TWO || this == N;
+    }
 
-  /**
-   * Check if this member represents just one connection just one connection.
-   * @return {@code true} if connections == 1
-   */
-  public boolean isSingle() {
-    return this == ONE;
-  }
+    /**
+     * Check if this member represents just one connection just one connection.
+     * 
+     * @return {@code true} if connections == 1
+     */
+    public boolean isSingle() {
+        return this == ONE;
+    }
 }

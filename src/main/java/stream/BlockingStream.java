@@ -35,136 +35,124 @@ import java.util.concurrent.BlockingQueue;
 
 public class BlockingStream<T> extends AbstractStream<T> {
 
-  private static final double EMA_ALPHA = 0.01;
-  private final BlockingQueue<T> stream;
-  private final int capacity;
-  private final StreamProducer<T> source;
-  private final StreamConsumer<T> destination;
-  private volatile long tuplesRead;
-  private volatile long tuplesWritten;
-  private boolean isFlushed;
+    private static final double EMA_ALPHA = 0.01;
+    private final BlockingQueue<T> stream;
+    private final int capacity;
+    private final StreamProducer<T> source;
+    private final StreamConsumer<T> destination;
+    private volatile long tuplesRead;
+    private volatile long tuplesWritten;
+    private boolean isFlushed;
 
-  private volatile double averageArrivalTime = -1;
+    private volatile double averageArrivalTime = -1;
 
-  /**
-   * Construct.
-   *  @param id The unique ID of the stream.
-   * @param index The unique index of the stream.
-   * @param source The producer
-   * @param destination The consumer
-   * @param capacity The capacity that the stream will enforce.
-   */
-  BlockingStream(
-      String id,
-      int index,
-      StreamProducer<T> source,
-      StreamConsumer<T> destination,
-      int capacity) {
-    super(id, index);
-    this.capacity = capacity;
-    this.stream = new ArrayBlockingQueue<>(capacity);
-    this.source = source;
-    this.destination = destination;
-  }
-
-  @Override
-  public void doAddTuple(T tuple, int producerIndex) {
-    try {
-      stream.put(tuple);
-      if (tuple instanceof RichTuple) {
-        long arrivalTime = ((RichTuple) tuple).getStimulus();
-        averageArrivalTime =
-            averageArrivalTime < 0
-                ? arrivalTime
-                : ((EMA_ALPHA * arrivalTime) + ((1 - EMA_ALPHA) * averageArrivalTime));
-      }
-    } catch (InterruptedException e) {
-      disable();
-      Thread.currentThread().interrupt();
+    /**
+     * Construct.
+     * 
+     * @param id          The unique ID of the stream.
+     * @param index       The unique index of the stream.
+     * @param source      The producer
+     * @param destination The consumer
+     * @param capacity    The capacity that the stream will enforce.
+     */
+    BlockingStream(String id, int index, StreamProducer<T> source, StreamConsumer<T> destination, int capacity) {
+        super(id, index);
+        this.capacity = capacity;
+        this.stream = new ArrayBlockingQueue<>(capacity);
+        this.source = source;
+        this.destination = destination;
     }
-  }
 
-  @Override
-  public final boolean offer(T tuple, int producerIndex) {
-    throw new UnsupportedOperationException("Use BackoffStream for non-blocking behavior");
-  }
-
-  @Override
-  public T doGetNextTuple(int consumerIndex) {
-    try {
-      return stream.take();
-    } catch (InterruptedException e) {
-      if (isEnabled()) {
-        disable();
-      }
-      Thread.currentThread().interrupt();
-      return null;
+    @Override
+    public void doAddTuple(T tuple, int producerIndex) {
+        try {
+            stream.put(tuple);
+            if (tuple instanceof RichTuple) {
+                long arrivalTime = ((RichTuple) tuple).getStimulus();
+                averageArrivalTime = averageArrivalTime < 0 ? arrivalTime
+                        : ((EMA_ALPHA * arrivalTime) + ((1 - EMA_ALPHA) * averageArrivalTime));
+            }
+        } catch (InterruptedException e) {
+            disable();
+            Thread.currentThread().interrupt();
+        }
     }
-  }
 
-  @Override
-  public final T peek(int consumerIndex) {
-    return stream.peek();
-  }
+    @Override
+    public final boolean offer(T tuple, int producerIndex) {
+        throw new UnsupportedOperationException("Use BackoffStream for non-blocking behavior");
+    }
 
-  @Override
-  public final int remainingCapacity() {
-    return Math.max(capacity - size(), 0);
-  }
+    @Override
+    public T doGetNextTuple(int consumerIndex) {
+        try {
+            return stream.take();
+        } catch (InterruptedException e) {
+            if (isEnabled()) {
+                disable();
+            }
+            Thread.currentThread().interrupt();
+            return null;
+        }
+    }
 
-  @Override
-  public final int size() {
-    return (int) (tuplesWritten - tuplesRead);
-  }
+    @Override
+    public final T peek(int consumerIndex) {
+        return stream.peek();
+    }
 
-  @Override
-  public List<? extends StreamProducer<T>> producers() {
-  	//FIXME: Optimize
-    return Arrays.asList(source);
-  }
+    @Override
+    public final int remainingCapacity() {
+        return Math.max(capacity - size(), 0);
+    }
 
-  @Override
-  public List<? extends StreamConsumer<T>> consumers() {
-    //FIXME: Optimize
-    return Arrays.asList(destination);
-  }
+    @Override
+    public final int size() {
+        return (int) (tuplesWritten - tuplesRead);
+    }
 
-  @Override
-  public void resetArrivalTime() {
-    averageArrivalTime = -1;
-  }
+    @Override
+    public List<? extends StreamProducer<T>> producers() {
+        // FIXME: Optimize
+        return Arrays.asList(source);
+    }
 
-  @Override
-  public double averageArrivalTime() {
-    return averageArrivalTime;
-  }
+    @Override
+    public List<? extends StreamConsumer<T>> consumers() {
+        // FIXME: Optimize
+        return Arrays.asList(destination);
+    }
 
-  @Override
-  public void flush() {
-    throw new UnsupportedOperationException("flushing is not supported for blocking queues");
-  }
+    @Override
+    public void resetArrivalTime() {
+        averageArrivalTime = -1;
+    }
 
-  @Override
-  public boolean isFlushed() {
-    return false;
-  }
+    @Override
+    public double averageArrivalTime() {
+        return averageArrivalTime;
+    }
 
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-        .append("id", id)
-        .append("index", index)
-        .append("capacity", capacity)
-        .append("size", size())
-        .append("component/source", source)
-        .append("destination", destination)
-        .append("enabled", enabled)
-        .toString();
-  }
+    @Override
+    public void flush() {
+        throw new UnsupportedOperationException("flushing is not supported for blocking queues");
+    }
 
-  @Override
-  public void clear() {
-    stream.clear();
-  }
+    @Override
+    public boolean isFlushed() {
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("id", id).append("index", index).append("capacity", capacity)
+                .append("size", size()).append("component/source", source).append("destination", destination)
+                .append("enabled", enabled).toString();
+    }
+
+    @Override
+    public void clear() {
+        stream.clear();
+    }
 
 }

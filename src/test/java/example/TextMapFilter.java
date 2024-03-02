@@ -32,40 +32,32 @@ import query.Query;
 
 public class TextMapFilter {
 
-  public static void main(String[] args) {
-    final String reportFolder = args[0];
-    final String inputFile = args[1];
-    final String outputFile = reportFolder + File.separator + "TextMapFilter.out.csv";
+    public static void main(String[] args) {
+        final String reportFolder = args[0];
+        final String inputFile = args[1];
+        final String outputFile = reportFolder + File.separator + "TextMapFilter.out.csv";
 
-    Query q = new Query();
+        Query q = new Query();
 
-    Source<String> i1 = q.addTextFileSource("I1", inputFile);
+        Source<String> i1 = q.addTextFileSource("I1", inputFile);
 
-    Operator<String, MyTuple> inputReader =
-        q.addMapOperator(
-            "map",
-            line -> {
-              Util.sleep(100);
-              String[] tokens = line.split(",");
-              return new MyTuple(
-                  Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
-            });
+        Operator<String, MyTuple> inputReader = q.addMapOperator("map", line -> {
+            Util.sleep(100);
+            String[] tokens = line.split(",");
+            return new MyTuple(Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
+        });
 
-    Operator<MyTuple, MyTuple> multiply =
-        q.addMapOperator(
-            "multiply", tuple -> new MyTuple(tuple.timestamp, tuple.key, tuple.value * 2));
+        Operator<MyTuple, MyTuple> multiply = q.addMapOperator("multiply",
+                tuple -> new MyTuple(tuple.timestamp, tuple.key, tuple.value * 2));
 
-    Operator<MyTuple, MyTuple> filter = q.addFilterOperator("filter", tuple -> tuple.value >= 150);
+        Operator<MyTuple, MyTuple> filter = q.addFilterOperator("filter", tuple -> tuple.value >= 150);
 
-    Sink<MyTuple> o1 = q.addTextFileSink("o1", outputFile, true);
+        Sink<MyTuple> o1 = q.addTextFileSink("o1", outputFile, true);
 
-    q.connect(i1, inputReader)
-        .connect(inputReader, multiply)
-        .connect(multiply, filter)
-        .connect(filter, o1);
+        q.connect(i1, inputReader).connect(inputReader, multiply).connect(multiply, filter).connect(filter, o1);
 
-    q.activate();
-    Util.sleep(20000);
-    q.deActivate();
-  }
+        q.activate();
+        Util.sleep(20000);
+        q.deActivate();
+    }
 }

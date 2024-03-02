@@ -38,66 +38,66 @@ import stream.Stream;
  */
 public abstract class AbstractSink<IN> extends AbstractComponent<IN, Void> implements Sink<IN> {
 
-  private static final int INPUT_KEY = 0;
+    private static final int INPUT_KEY = 0;
 
-  /**
-   * Construct.
-   *
-   * @param id The unique ID of this component.
-   */
-  public AbstractSink(String id) {
-    super(id, ComponentType.SINK);
-  }
-
-  @Override
-  protected final void process() {
-    if (isFlushed()) {
-      return;
+    /**
+     * Construct.
+     *
+     * @param id The unique ID of this component.
+     */
+    public AbstractSink(String id) {
+        super(id, ComponentType.SINK);
     }
 
-    Stream<IN> input = getInput();
-    IN tuple = input.getNextTuple(getIndex());
+    @Override
+    protected final void process() {
+        if (isFlushed()) {
+            return;
+        }
 
-    if (isStreamFinished(tuple, input)) {
-      flush();
-      return;
+        Stream<IN> input = getInput();
+        IN tuple = input.getNextTuple(getIndex());
+
+        if (isStreamFinished(tuple, input)) {
+            flush();
+            return;
+        }
+
+        if (tuple != null) {
+            increaseTuplesRead();
+            increaseTuplesWritten();
+            processTuple(tuple);
+        } else {
+            ping();
+        }
     }
 
-    if (tuple != null) {
-      increaseTuplesRead();
-      increaseTuplesWritten();
-      processTuple(tuple);
-    } else {
-      ping();
+    @Override
+    protected void flushAction() {
+        LiebreContext.sinkFinished(this);
     }
-  }
 
-  @Override
-  protected void flushAction() {
-    LiebreContext.sinkFinished(this);
-  }
+    @Override
+    public void addInput(Stream<IN> stream) {
+        state.addInput(INPUT_KEY, stream);
+    }
 
-  @Override
-  public void addInput(Stream<IN> stream) {
-    state.addInput(INPUT_KEY, stream);
-  }
+    @Override
+    public Stream<IN> getInput() {
+        return state.getInput(INPUT_KEY);
+    }
 
-  @Override
-  public Stream<IN> getInput() {
-    return state.getInput(INPUT_KEY);
-  }
+    @Override
+    public Collection<? extends Stream<IN>> getInputs() {
+        return state.getInputs();
+    }
 
-  @Override
-  public Collection<? extends Stream<IN>> getInputs() {
-    return state.getInputs();
-  }
+    @Override
+    public boolean canRun() {
+        return getInput().size() > 0;
+    }
 
-  @Override
-  public boolean canRun() {
-    return getInput().size() > 0;
-  }
+    public abstract void processTuple(IN tuple);
 
-  public abstract void processTuple(IN tuple);
-
-  public abstract void ping();
+    public abstract void ping();
 }

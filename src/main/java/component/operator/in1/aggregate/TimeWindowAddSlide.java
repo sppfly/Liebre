@@ -27,27 +27,28 @@ import common.tuple.RichTuple;
 import component.ComponentFunction;
 
 /**
- * Time-based, stateful window of an aggregate function. The important functions which need to be
- * implemented and define the aggregation logic are {@link TimeWindowAddSlide#add(RichTuple)},
- * {@link TimeWindowAddSlide#remove(RichTuple)} and {@link TimeWindowAddSlide#getAggregatedResult()}.
- * The actual placement of tuples in the windows is done automatically by {@link
- * TimeBasedSingleWindowAggregateOld}.
+ * Time-based, stateful window of an aggregate function. The important functions
+ * which need to be implemented and define the aggregation logic are
+ * {@link TimeWindowAddSlide#add(RichTuple)},
+ * {@link TimeWindowAddSlide#remove(RichTuple)} and
+ * {@link TimeWindowAddSlide#getAggregatedResult()}. The actual placement of
+ * tuples in the windows is done automatically by
+ * {@link TimeBasedSingleWindowAggregateOld}.
  *
- * @param <IN> The type of the input tuples.
+ * @param <IN>  The type of the input tuples.
  * @param <OUT> The type of the output tuples.
  */
-public interface TimeWindowAddSlide<IN extends RichTuple, OUT extends RichTuple> extends
-    TimeWindow<IN, OUT> {
+public interface TimeWindowAddSlide<IN extends RichTuple, OUT extends RichTuple> extends TimeWindow<IN, OUT> {
 
-  /**
-   * Generate a new {@link TimeWindowAddSlide} with the same configuration and probably a clear
-   * state.
-   *
-   * @return A new {@link TimeWindowAddSlide} instance.
-   */
-  TimeWindowAddSlide<IN, OUT> factory();
+    /**
+     * Generate a new {@link TimeWindowAddSlide} with the same configuration and
+     * probably a clear state.
+     *
+     * @return A new {@link TimeWindowAddSlide} instance.
+     */
+    TimeWindowAddSlide<IN, OUT> factory();
 
-  void slideTo(long startTimestamp);
+    void slideTo(long startTimestamp);
 
-  boolean isEmpty();
+    boolean isEmpty();
 }

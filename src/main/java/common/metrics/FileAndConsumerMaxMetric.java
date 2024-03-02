@@ -26,68 +26,68 @@ import java.util.function.Consumer;
  */
 
 /**
- * Statistic that records the per-second max of the recorded value.
- * Assumes non-negative records.
+ * Statistic that records the per-second max of the recorded value. Assumes
+ * non-negative records.
  */
 public class FileAndConsumerMaxMetric extends AbstractFileAndConsumerMetric {
-  private long max;
-  long prevSec;
-  boolean resetCount;
+    private long max;
+    long prevSec;
+    boolean resetCount;
 
-  private final long missingValue = -1;
+    private final long missingValue = -1;
 
-  // Notice in this case the last max value must become the new neutral value in
-  // case of missing value
-  private long neutralValue = Long.MIN_VALUE;
+    // Notice in this case the last max value must become the new neutral value in
+    // case of missing value
+    private long neutralValue = Long.MIN_VALUE;
 
-  public FileAndConsumerMaxMetric(String id, String folder, boolean autoFlush, boolean resetCount,
-      Consumer<Object[]> c) {
-    super(id, folder, autoFlush, c);
-    this.resetCount = resetCount;
-  }
-
-  @Override
-  protected void doRecord(long v) {
-    writePreviousCounts();
-    if (max == missingValue) {
-      max = neutralValue;
+    public FileAndConsumerMaxMetric(String id, String folder, boolean autoFlush, boolean resetCount,
+            Consumer<Object[]> c) {
+        super(id, folder, autoFlush, c);
+        this.resetCount = resetCount;
     }
-    max = Long.max(max, v);
-    neutralValue = max;
-  }
 
-  @Override
-  public void enable() {
-    this.max = missingValue;
-    this.prevSec = currentTimeSeconds();
-    super.enable();
-  }
+    @Override
+    protected void doRecord(long v) {
+        writePreviousCounts();
+        if (max == missingValue) {
+            max = neutralValue;
+        }
+        max = Long.max(max, v);
+        neutralValue = max;
+    }
 
-  public void disable() {
-    writePreviousCounts();
-    super.disable();
-  }
+    @Override
+    public void enable() {
+        this.max = missingValue;
+        this.prevSec = currentTimeSeconds();
+        super.enable();
+    }
 
-  private void writePreviousCounts() {
-    long thisSec = currentTimeSeconds();
-    while (prevSec < thisSec) {
-      writeCSVLineAndConsume(prevSec, max);
-      if (resetCount) {
+    public void disable() {
+        writePreviousCounts();
+        super.disable();
+    }
+
+    private void writePreviousCounts() {
+        long thisSec = currentTimeSeconds();
+        while (prevSec < thisSec) {
+            writeCSVLineAndConsume(prevSec, max);
+            if (resetCount) {
+                neutralValue = Long.MIN_VALUE;
+            }
+            max = missingValue;
+            prevSec++;
+        }
+    }
+
+    @Override
+    public void reset() {
+        max = missingValue;
         neutralValue = Long.MIN_VALUE;
-      }
-      max = missingValue;
-      prevSec++;
     }
-  }
 
-  @Override
-  public void reset() {
-    max = missingValue;
-    neutralValue = Long.MIN_VALUE;
-  }
-
-  @Override
-  public void ping() {
-    writePreviousCounts();
-  }
+    @Override
+    public void ping() {
+        writePreviousCounts();
+    }
 }

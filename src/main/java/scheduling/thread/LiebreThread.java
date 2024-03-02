@@ -33,42 +33,42 @@ import common.util.StopJvmUncaughtExceptionHandler;
  *
  */
 public abstract class LiebreThread extends Thread implements Active {
-	private final int index;
+    private final int index;
 
-	public LiebreThread() {
-		this(-1);
-	}
+    public LiebreThread() {
+        this(-1);
+    }
 
-	public LiebreThread(int index) {
-		this.index = index;
-		setDefaultUncaughtExceptionHandler(StopJvmUncaughtExceptionHandler.INSTANCE);
-	}
+    public LiebreThread(int index) {
+        this.index = index;
+        setDefaultUncaughtExceptionHandler(StopJvmUncaughtExceptionHandler.INSTANCE);
+    }
 
-	@Override
-	public void run() {
-		while (isEnabled()) {
-			doRun();
-		}
-	}
+    @Override
+    public void run() {
+        while (isEnabled()) {
+            doRun();
+        }
+    }
 
-	protected abstract void doRun();
+    protected abstract void doRun();
 
-	@Override
-	public void enable() {
-	}
+    @Override
+    public void enable() {
+    }
 
-	@Override
-	public boolean isEnabled() {
-		return !isInterrupted();
-	}
+    @Override
+    public boolean isEnabled() {
+        return !isInterrupted();
+    }
 
-	@Override
-	public void disable() {
-		interrupt();
-	}
+    @Override
+    public void disable() {
+        interrupt();
+    }
 
-	public int getIndex() {
-		return index;
-	}
+    public int getIndex() {
+        return index;
+    }
 
 }

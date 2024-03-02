@@ -28,47 +28,48 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 
 /**
- * {@link component.operator.Operator} that applies a given {@link FlatMapFunction} to the tuples of a
- * stream.
+ * {@link component.operator.Operator} that applies a given
+ * {@link FlatMapFunction} to the tuples of a stream.
  *
- * @param <IN> The type of input tuples.
+ * @param <IN>  The type of input tuples.
  * @param <OUT> The type of output tuples.
  */
 public class FlatMapOperator<IN, OUT> extends BaseOperator1In<IN, OUT> {
 
-  private FlatMapFunction<IN, OUT> map;
+    private FlatMapFunction<IN, OUT> map;
 
-  /**
-   * Construct.
-   *  @param id The unique id of this component.operator.
-   * @param map The {@link FlatMapFunction} that will be applied to each input tuple.
-   */
-	public FlatMapOperator(String id,
-      FlatMapFunction<IN, OUT> map) {
-		super(id);
-		Validate.notNull(map, "map");
-		this.map = map;
-	}
+    /**
+     * Construct.
+     * 
+     * @param id  The unique id of this component.operator.
+     * @param map The {@link FlatMapFunction} that will be applied to each input
+     *            tuple.
+     */
+    public FlatMapOperator(String id, FlatMapFunction<IN, OUT> map) {
+        super(id);
+        Validate.notNull(map, "map");
+        this.map = map;
+    }
 
-  @Override
-  public void enable() {
-    map.enable();
-    super.enable();
-  }
+    @Override
+    public void enable() {
+        map.enable();
+        super.enable();
+    }
 
-  @Override
-  public void disable() {
-    super.disable();
-    map.disable();
-  }
+    @Override
+    public void disable() {
+        super.disable();
+        map.disable();
+    }
 
-  @Override
-  public List<OUT> processTupleIn1(IN tuple) {
-    return map.apply(tuple);
-  }
+    @Override
+    public List<OUT> processTupleIn1(IN tuple) {
+        return map.apply(tuple);
+    }
 
-  @Override
-  public boolean canRun() {
-    return map.canRun() && super.canRun();
-  }
+    @Override
+    public boolean canRun() {
+        return map.canRun() && super.canRun();
+    }
 }

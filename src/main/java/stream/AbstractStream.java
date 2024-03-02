@@ -5,67 +5,67 @@ import common.metrics.Metric;
 
 public abstract class AbstractStream<T> implements Stream<T> {
 
-  public static final String METRIC_IN = "IN";
-  public static final String METRIC_OUT = "OUT";
-  protected final String id;
-  protected final int index;
-  protected boolean enabled;
+    public static final String METRIC_IN = "IN";
+    public static final String METRIC_OUT = "OUT";
+    protected final String id;
+    protected final int index;
+    protected boolean enabled;
 
-  private final Metric inMetric;
-  private final Metric outMetric;
+    private final Metric inMetric;
+    private final Metric outMetric;
 
-  public AbstractStream(String id, int index) {
-    this.id = id;
-    this.index = index;
-    inMetric = LiebreContext.streamMetrics().newStreamMetric(id, METRIC_IN);
-    outMetric = LiebreContext.streamMetrics().newStreamMetric(id, METRIC_OUT);
-  }
-
-  @Override
-  public final void addTuple(T tuple, int producerIndex) {
-    doAddTuple(tuple, producerIndex);
-    inMetric.record(1);
-  }
-
-  @Override
-  public final T getNextTuple(int consumerIndex) {
-    T tuple = doGetNextTuple(consumerIndex);
-    if (tuple != null) {
-      outMetric.record(1);
+    public AbstractStream(String id, int index) {
+        this.id = id;
+        this.index = index;
+        inMetric = LiebreContext.streamMetrics().newStreamMetric(id, METRIC_IN);
+        outMetric = LiebreContext.streamMetrics().newStreamMetric(id, METRIC_OUT);
     }
-    return tuple;
-  }
 
-  protected abstract T doGetNextTuple(int consumerIndex);
+    @Override
+    public final void addTuple(T tuple, int producerIndex) {
+        doAddTuple(tuple, producerIndex);
+        inMetric.record(1);
+    }
 
-  protected abstract void doAddTuple(T tuple, int producerIndex);
+    @Override
+    public final T getNextTuple(int consumerIndex) {
+        T tuple = doGetNextTuple(consumerIndex);
+        if (tuple != null) {
+            outMetric.record(1);
+        }
+        return tuple;
+    }
 
-  @Override
-  public void enable() {
-    inMetric.enable();
-    outMetric.enable();
-    this.enabled = true;
-  }
+    protected abstract T doGetNextTuple(int consumerIndex);
 
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
+    protected abstract void doAddTuple(T tuple, int producerIndex);
 
-  @Override
-  public void disable() {
-    this.enabled = false;
-    inMetric.disable();
-    outMetric.disable();
-  }
+    @Override
+    public void enable() {
+        inMetric.enable();
+        outMetric.enable();
+        this.enabled = true;
+    }
 
-  @Override
-  public String getId() {
-    return id;
-  }
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-  @Override
-  public int getIndex() {
-    return index;
-  }
+    @Override
+    public void disable() {
+        this.enabled = false;
+        inMetric.disable();
+        outMetric.disable();
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
+    }
 }

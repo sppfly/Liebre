@@ -35,60 +35,57 @@ import stream.Stream;
  */
 public class BaseRouterOperator<T> extends AbstractOperator<T, T> implements RouterOperator<T> {
 
-  public BaseRouterOperator(String id) {
-    super(id, ComponentType.ROUTER);
-  }
-
-  @Override
-  protected final void process() {
-    if (isFlushed()) {
-      return;
+    public BaseRouterOperator(String id) {
+        super(id, ComponentType.ROUTER);
     }
 
-    Stream<T> input = getInput();
-    T inTuple = input.getNextTuple(getIndex());
+    @Override
+    protected final void process() {
+        if (isFlushed()) {
+            return;
+        }
 
-    if (isStreamFinished(inTuple, input)) {
-      flush();
-      return;
+        Stream<T> input = getInput();
+        T inTuple = input.getNextTuple(getIndex());
+
+        if (isStreamFinished(inTuple, input)) {
+            flush();
+            return;
+        }
+
+        if (inTuple != null) {
+            increaseTuplesRead();
+            for (Stream<T> output : chooseOutputs(inTuple)) {
+                increaseTuplesWritten();
+                output.addTuple(inTuple, getIndex());
+            }
+        }
     }
 
-    if (inTuple != null) {
-      increaseTuplesRead();
-      for (Stream<T> output : chooseOutputs(inTuple)) {
-        increaseTuplesWritten();
-        output.addTuple(inTuple, getIndex());
-      }
+    @Override
+    public Collection<? extends Stream<T>> chooseOutputs(T tuple) {
+        return getOutputs();
     }
-  }
 
-
-
-  @Override
-  public Collection<? extends Stream<T>> chooseOutputs(T tuple) {
-    return getOutputs();
-  }
-
-  @Override
-  public void addOutput(Stream<T> stream) {
-    state.addOutput(stream);
-  }
-
-  public Stream<T> getOutput() {
-    throw new UnsupportedOperationException(
-        String.format("'%s': Router has multiple outputs!", state.getId()));
-  }
-
-  @Override
-  public boolean canRun() {
-    if (getInput().size() == 0) {
-      return false;
+    @Override
+    public void addOutput(Stream<T> stream) {
+        state.addOutput(stream);
     }
-    for (Stream<?> output : getOutputs()) {
-      if (output.remainingCapacity() > 0) {
-        return true;
-      }
+
+    public Stream<T> getOutput() {
+        throw new UnsupportedOperationException(String.format("'%s': Router has multiple outputs!", state.getId()));
     }
-    return false;
-  }
+
+    @Override
+    public boolean canRun() {
+        if (getInput().size() == 0) {
+            return false;
+        }
+        for (Stream<?> output : getOutputs()) {
+            if (output.remainingCapacity() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

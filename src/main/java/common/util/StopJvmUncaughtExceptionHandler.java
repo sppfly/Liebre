@@ -27,21 +27,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Sometimes it is useful to stop the whole system in case a processing thread crashes. This
- * exception handler achieves just this. When used and a thread throws an uncaught exception, the
- * whole JVM will stop to speed up bug detection and resolution.
+ * Sometimes it is useful to stop the whole system in case a processing thread
+ * crashes. This exception handler achieves just this. When used and a thread
+ * throws an uncaught exception, the whole JVM will stop to speed up bug
+ * detection and resolution.
  *
  * @author palivosd
  */
 public enum StopJvmUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
-  INSTANCE;
-  private final Logger LOGGER = LogManager.getLogger();
+    INSTANCE;
 
-  @Override
-  public void uncaughtException(Thread t, Throwable e) {
-    LOGGER.error("{} crashed", t, e);
-    LOGGER.error("Details: {}", e);
-    LOGGER.error("Shutting down");
-    System.exit(1);
-  }
+    private final Logger LOGGER = LogManager.getLogger();
+
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        LOGGER.error("{} crashed", t, e);
+        LOGGER.error("Details: {}", e);
+        LOGGER.error("Shutting down");
+        System.exit(1);
+    }
 }

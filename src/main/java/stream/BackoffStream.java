@@ -37,9 +37,10 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Stream implementation that has an (optional) approximate capacity that is enforced by an optional
- * provided {@link Backoff} strategy. The backoff strategy is also activated in case the reader is
- * faster than the writer, to prevent spinning.
+ * Stream implementation that has an (optional) approximate capacity that is
+ * enforced by an optional provided {@link Backoff} strategy. The backoff
+ * strategy is also activated in case the reader is faster than the writer, to
+ * prevent spinning.
  *
  * @param <T> The type of tuples transferred by this {@link Stream}.
  * @see StreamFactory
@@ -48,152 +49,140 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class BackoffStream<T> extends AbstractStream<T> {
 
-  private static final double EMA_ALPHA = 0.5;
-  private final Queue<T> stream = new ConcurrentLinkedQueue<>();
-  private final int capacity;
-  private final StreamProducer<T> source;
-  private final StreamConsumer<T> destination;
-  private final Backoff readBackoff;
-  private final Backoff writeBackoff;
-  private volatile long tuplesRead;
-  private volatile long tuplesWritten;
-  private volatile boolean isFlushed = false;
-  private volatile double averageArrivalTime = -1;
+    private static final double EMA_ALPHA = 0.5;
+    private final Queue<T> stream = new ConcurrentLinkedQueue<>();
+    private final int capacity;
+    private final StreamProducer<T> source;
+    private final StreamConsumer<T> destination;
+    private final Backoff readBackoff;
+    private final Backoff writeBackoff;
+    private volatile long tuplesRead;
+    private volatile long tuplesWritten;
+    private volatile boolean isFlushed = false;
+    private volatile double averageArrivalTime = -1;
 
-  /**
-   * Construct.
-   *  @param id The unique ID of the stream.
-   * @param index The unique index of the stream.
-   * @param source The producer
-   * @param destination The consumer
-   * @param capacity The capacity that the stream will try to enforce with the {@link Backoff}
-*     strategy.
-   * @param backoff The backoff strategy.
-   */
-  BackoffStream(
-      String id,
-      int index,
-      StreamProducer<T> source,
-      StreamConsumer<T> destination,
-      int capacity,
-      Backoff backoff) {
-    super(id, index);
-    this.capacity = capacity;
-    this.source = source;
-    this.destination = destination;
-    this.readBackoff = backoff.newInstance();
-    this.writeBackoff = backoff.newInstance();
-  }
-
-  @Override
-  public void doAddTuple(T tuple, int producerIndex) {
-    if (offer(tuple, producerIndex)) {
-      writeBackoff.relax();
-      return;
+    /**
+     * Construct.
+     * 
+     * @param id          The unique ID of the stream.
+     * @param index       The unique index of the stream.
+     * @param source      The producer
+     * @param destination The consumer
+     * @param capacity    The capacity that the stream will try to enforce with the
+     *                    {@link Backoff} strategy.
+     * @param backoff     The backoff strategy.
+     */
+    BackoffStream(String id, int index, StreamProducer<T> source, StreamConsumer<T> destination, int capacity,
+            Backoff backoff) {
+        super(id, index);
+        this.capacity = capacity;
+        this.source = source;
+        this.destination = destination;
+        this.readBackoff = backoff.newInstance();
+        this.writeBackoff = backoff.newInstance();
     }
-    writeBackoff.backoff();
-  }
 
-  @Override
-  public final boolean offer(T tuple, int producerIndex) {
-    stream.offer(tuple);
-    tuplesWritten++;
-    // FIXME: This should only run when scheduling is enabled!!
-    if (tuple instanceof RichTuple) {
-      long arrivalTime = ((RichTuple) tuple).getStimulus();
-      averageArrivalTime =
-          averageArrivalTime < 0
-              ? arrivalTime
-              : ((EMA_ALPHA * arrivalTime) + ((1 - EMA_ALPHA) * averageArrivalTime));
+    @Override
+    public void doAddTuple(T tuple, int producerIndex) {
+        if (offer(tuple, producerIndex)) {
+            writeBackoff.relax();
+            return;
+        }
+        writeBackoff.backoff();
     }
-    return remainingCapacity() > 0;
-  }
 
-  @Override
-  public T doGetNextTuple(int consumerIndex) {
-    T tuple = stream.poll();
-    if (tuple != null) {
-      readBackoff.relax();
-      tuplesRead++;
-      return tuple;
+    @Override
+    public final boolean offer(T tuple, int producerIndex) {
+        stream.offer(tuple);
+        tuplesWritten++;
+        // FIXME: This should only run when scheduling is enabled!!
+        if (tuple instanceof RichTuple) {
+            long arrivalTime = ((RichTuple) tuple).getStimulus();
+            averageArrivalTime = averageArrivalTime < 0 ? arrivalTime
+                    : ((EMA_ALPHA * arrivalTime) + ((1 - EMA_ALPHA) * averageArrivalTime));
+        }
+        return remainingCapacity() > 0;
     }
-    readBackoff.backoff();
-    return null;
-  }
 
-  @Override
-  public final T peek(int consumerIndex) {
-    return stream.peek();
-  }
+    @Override
+    public T doGetNextTuple(int consumerIndex) {
+        T tuple = stream.poll();
+        if (tuple != null) {
+            readBackoff.relax();
+            tuplesRead++;
+            return tuple;
+        }
+        readBackoff.backoff();
+        return null;
+    }
 
-  @Override
-  public final int remainingCapacity() {
-    return Math.max(capacity - size(), 0);
-  }
+    @Override
+    public final T peek(int consumerIndex) {
+        return stream.peek();
+    }
 
-  @Override
-  public final int size() {
-    return (int) (tuplesWritten - tuplesRead);
-  }
+    @Override
+    public final int remainingCapacity() {
+        return Math.max(capacity - size(), 0);
+    }
 
-  @Override
-  public List<? extends StreamProducer<T>> producers() {
-		//FIXME: Optimize
-		return Arrays.asList(source);
-  }
+    @Override
+    public final int size() {
+        return (int) (tuplesWritten - tuplesRead);
+    }
 
-  @Override
-  public List<? extends StreamConsumer<T>> consumers() {
-    // FIXME: Optimize
-    return Arrays.asList(destination);
-  }
+    @Override
+    public List<? extends StreamProducer<T>> producers() {
+        // FIXME: Optimize
+        return Arrays.asList(source);
+    }
 
-  @Override
-  public void resetArrivalTime() {
-    averageArrivalTime = -1;
-  }
+    @Override
+    public List<? extends StreamConsumer<T>> consumers() {
+        // FIXME: Optimize
+        return Arrays.asList(destination);
+    }
 
-  @Override
-  public double averageArrivalTime() {
-    return averageArrivalTime;
-  }
+    @Override
+    public void resetArrivalTime() {
+        averageArrivalTime = -1;
+    }
 
-  @Override
-  public void flush() {
-    isFlushed = true;
-  }
+    @Override
+    public double averageArrivalTime() {
+        return averageArrivalTime;
+    }
 
-  @Override
-  public boolean isFlushed() {
-    return isFlushed && stream.isEmpty();
-  }
+    @Override
+    public void flush() {
+        isFlushed = true;
+    }
 
-  @Override
-  public String getId() {
-    return id;
-  }
+    @Override
+    public boolean isFlushed() {
+        return isFlushed && stream.isEmpty();
+    }
 
-  @Override
-  public int getIndex() {
-    return index;
-  }
+    @Override
+    public String getId() {
+        return id;
+    }
 
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-        .append("id", id)
-        .append("index", index)
-        .append("capacity", capacity)
-        .append("size", size())
-        .append("component/source", source)
-        .append("destination", destination)
-        .append("enabled", enabled)
-        .toString();
-  }
+    @Override
+    public int getIndex() {
+        return index;
+    }
 
-  @Override
-  public void clear() {
-    stream.clear();
-  }
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("id", id).append("index", index).append("capacity", capacity)
+                .append("size", size()).append("component/source", source).append("destination", destination)
+                .append("enabled", enabled).toString();
+    }
+
+    @Override
+    public void clear() {
+        stream.clear();
+    }
 
 }

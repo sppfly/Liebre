@@ -33,34 +33,39 @@ import java.util.Collection;
  */
 public interface LiebreScheduler<T extends Runnable> extends Active {
 
-  /**
-   * Add {@link Runnable}s to be scheduled by this entity. If the Scheduler implementation supports
-   * live reconfigurations (during execution), this function can be called even when the SPE is
-   * running.
-   *
-   * @param tasks The tasks to be scheduled.
-   * @implNote This function should work correctly if called multiple times.
-   * @throws IllegalStateException if the scheduler does not support live reconfigurations and this
-   *     function is called while the SPE is active.
-   */
-  void addTasks(Collection<T> tasks);
+    /**
+     * Add {@link Runnable}s to be scheduled by this entity. If the Scheduler
+     * implementation supports live reconfigurations (during execution), this
+     * function can be called even when the SPE is running.
+     *
+     * @param tasks The tasks to be scheduled.
+     * @implNote This function should work correctly if called multiple times.
+     * @throws IllegalStateException if the scheduler does not support live
+     *                               reconfigurations and this function is called
+     *                               while the SPE is active.
+     */
+    void addTasks(Collection<T> tasks);
 
-  /**
-   * Remove {@link Runnable}s that were to be scheduled by this entity. If the Scheduler
-   * implementation supports live reconfigurations (during execution), this function can be called
-   * even when the SPE is running.
-   *
-   * @param tasks The tasks to be removed from the schedule.
-   * @implNote This function should work correctly if called multiple times.
-   * @throws IllegalStateException if the scheduler does not support live reconfigurations and this
-   *     function is called while the SPE is active.
-   */
-  void removeTasks(Collection<T> tasks);
+    /**
+     * Remove {@link Runnable}s that were to be scheduled by this entity. If the
+     * Scheduler implementation supports live reconfigurations (during execution),
+     * this function can be called even when the SPE is running.
+     *
+     * @param tasks The tasks to be removed from the schedule.
+     * @implNote This function should work correctly if called multiple times.
+     * @throws IllegalStateException if the scheduler does not support live
+     *                               reconfigurations and this function is called
+     *                               while the SPE is active.
+     */
+    void removeTasks(Collection<T> tasks);
 
-  /** Start and schedule the tasks according to the actual scheduler implementation. */
-  void startTasks();
+    /**
+     * Start and schedule the tasks according to the actual scheduler
+     * implementation.
+     */
+    void startTasks();
 
-  /** Stop the running tasks. */
-  void stopTasks();
+    /** Stop the running tasks. */
+    void stopTasks();
 
 }

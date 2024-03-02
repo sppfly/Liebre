@@ -36,71 +36,69 @@ import scheduling.LiebreScheduler;
  */
 public class HarenLiebreSchedulerAdapter implements LiebreScheduler<Task> {
 
-  private final HarenScheduler scheduler;
+    private final HarenScheduler scheduler;
 
-  public HarenLiebreSchedulerAdapter(HarenScheduler scheduler) {
-    this.scheduler = scheduler;
-  }
-
-  @Override
-  public void addTasks(Collection<Task> tasks) {
-    // In case of live changes, the scheduler explicitly enables the tasks
-    if (isEnabled()) {
-      tasks.stream().forEach((task -> ((Active) task).enable()));
+    public HarenLiebreSchedulerAdapter(HarenScheduler scheduler) {
+        this.scheduler = scheduler;
     }
-    scheduler.addTasks(tasks);
-  }
 
-  @Override
-  public void removeTasks(Collection<Task> tasks) {
-    // In case of live changes, the scheduler explicitly disables the tasks
-    if (isEnabled()) {
-      tasks.stream().forEach((task -> ((Active) task).disable()));
+    @Override
+    public void addTasks(Collection<Task> tasks) {
+        // In case of live changes, the scheduler explicitly enables the tasks
+        if (isEnabled()) {
+            tasks.stream().forEach((task -> ((Active) task).enable()));
+        }
+        scheduler.addTasks(tasks);
     }
-    scheduler.removeTasks(tasks);
-  }
 
-
-  @Override
-  public void startTasks() {
-    scheduler.start();
-  }
-
-  @Override
-  public void stopTasks() {
-    scheduler.stop();
-  }
-
-  public void setBatchSize(int batchSize) {
-    scheduler.setBatchSize(batchSize);
-  }
-
-  public void setSchedulingPeriod(long schedulingPeriod) {
-    scheduler.setSchedulingPeriod(schedulingPeriod);
-  }
-
-  public void setIntraThreadFunction(
-      VectorIntraThreadSchedulingFunction intraThreadFunction) {
-    scheduler.setIntraThreadFunction(intraThreadFunction);
-  }
-
-  @Override
-  public void enable() {
-    for (Task task : scheduler.tasks()) {
-      ((Component) task).enable();
+    @Override
+    public void removeTasks(Collection<Task> tasks) {
+        // In case of live changes, the scheduler explicitly disables the tasks
+        if (isEnabled()) {
+            tasks.stream().forEach((task -> ((Active) task).disable()));
+        }
+        scheduler.removeTasks(tasks);
     }
-  }
 
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
-
-  @Override
-  public void disable() {
-    for (Task task : scheduler.tasks()) {
-      ((Component) task).disable();
+    @Override
+    public void startTasks() {
+        scheduler.start();
     }
-  }
+
+    @Override
+    public void stopTasks() {
+        scheduler.stop();
+    }
+
+    public void setBatchSize(int batchSize) {
+        scheduler.setBatchSize(batchSize);
+    }
+
+    public void setSchedulingPeriod(long schedulingPeriod) {
+        scheduler.setSchedulingPeriod(schedulingPeriod);
+    }
+
+    public void setIntraThreadFunction(VectorIntraThreadSchedulingFunction intraThreadFunction) {
+        scheduler.setIntraThreadFunction(intraThreadFunction);
+    }
+
+    @Override
+    public void enable() {
+        for (Task task : scheduler.tasks()) {
+            ((Component) task).enable();
+        }
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public void disable() {
+        for (Task task : scheduler.tasks()) {
+            ((Component) task).disable();
+        }
+    }
 
 }

@@ -30,133 +30,131 @@ import java.util.Collection;
 import java.util.List;
 import stream.Stream;
 
-
 /**
- * An adapter of this component.operator that looks like a regular {@link
- * component.operator.in1.Operator1In} with its
- * main input being the second input of this {@link Operator2In}.
+ * An adapter of this component.operator that looks like a regular
+ * {@link component.operator.in1.Operator1In} with its main input being the
+ * second input of this {@link Operator2In}.
  */
-class SecondInputOperator2InAdapter<IN, OUT> implements
-    Operator<IN, OUT> {
+class SecondInputOperator2InAdapter<IN, OUT> implements Operator<IN, OUT> {
 
-  private final Operator2In<?, IN, OUT> decorated;
+    private final Operator2In<?, IN, OUT> decorated;
 
-  /**
-   * Construct an adapter for the given component.operator.
-   *
-   * @param operator The component.operator to be adapted.
-   */
-  public SecondInputOperator2InAdapter(Operator2In<?, IN, OUT> operator) {
-    this.decorated = operator;
-  }
+    /**
+     * Construct an adapter for the given component.operator.
+     *
+     * @param operator The component.operator to be adapted.
+     */
+    public SecondInputOperator2InAdapter(Operator2In<?, IN, OUT> operator) {
+        this.decorated = operator;
+    }
 
-  public List<OUT> processTupleIn1(IN tuple) {
-    return decorated.processTupleIn2(tuple);
-  }
+    public List<OUT> processTupleIn1(IN tuple) {
+        return decorated.processTupleIn2(tuple);
+    }
 
-  @Override
-  public void addInput(Stream<IN> stream) {
-    decorated.addInput2(stream);
-  }
+    @Override
+    public void addInput(Stream<IN> stream) {
+        decorated.addInput2(stream);
+    }
 
-  @Override
-  public double getRate() {
-    return decorated.getRate();
-  }
+    @Override
+    public double getRate() {
+        return decorated.getRate();
+    }
 
-  @Override
-  public Collection<? extends Stream<OUT>> getOutputs() {
-    return decorated.getOutputs();
-  }
+    @Override
+    public Collection<? extends Stream<OUT>> getOutputs() {
+        return decorated.getOutputs();
+    }
 
-  @Override
-  public Collection<? extends Stream<?>> getInputs() {
-    return decorated.getInputs();
-  }
+    @Override
+    public Collection<? extends Stream<?>> getInputs() {
+        return decorated.getInputs();
+    }
 
-  @Override
-  public Stream<IN> getInput() {
-    return decorated.getInput2();
-  }
+    @Override
+    public Stream<IN> getInput() {
+        return decorated.getInput2();
+    }
 
-  @Override
-  public String getId() {
-    return decorated.getId();
-  }
+    @Override
+    public String getId() {
+        return decorated.getId();
+    }
 
-  @Override
-  public int getIndex() {
-    return decorated.getIndex();
-  }
+    @Override
+    public int getIndex() {
+        return decorated.getIndex();
+    }
 
-  @Override
-  public void enable() {
-    decorated.enable();
-  }
+    @Override
+    public void enable() {
+        decorated.enable();
+    }
 
-  @Override
-  public boolean isEnabled() {
-    return decorated.isEnabled();
-  }
+    @Override
+    public boolean isEnabled() {
+        return decorated.isEnabled();
+    }
 
-  @Override
-  public void disable() {
-    decorated.disable();
-  }
+    @Override
+    public void disable() {
+        decorated.disable();
+    }
 
-  @Override
-  public ComponentType getType() {
-    return decorated.getType();
-  }
+    @Override
+    public ComponentType getType() {
+        return decorated.getType();
+    }
 
-  @Override
-  public double getCost() {
-    return decorated.getCost();
-  }
+    @Override
+    public double getCost() {
+        return decorated.getCost();
+    }
 
-  @Override
-  public double getSelectivity() {
-    return decorated.getSelectivity();
-  }
+    @Override
+    public double getSelectivity() {
+        return decorated.getSelectivity();
+    }
 
-  @Override
-  public void updateMetrics() {
-    decorated.updateMetrics();
-  }
+    @Override
+    public void updateMetrics() {
+        decorated.updateMetrics();
+    }
 
-  @Override
-  public boolean runFor(int times) {
-    return decorated.runFor(times);
-  }
+    @Override
+    public boolean runFor(int times) {
+        return decorated.runFor(times);
+    }
 
-  @Override
-  public boolean canRun() {
-    return decorated.canRun();
-  }
+    @Override
+    public boolean canRun() {
+        return decorated.canRun();
+    }
 
-  @Override
-  public void run() {
-    decorated.run();
-  }
+    @Override
+    public void run() {
+        decorated.run();
+    }
 
-  @Override
-  public void addOutput(Stream<OUT> stream) {
-    decorated.addOutput(stream);
-  }
+    @Override
+    public void addOutput(Stream<OUT> stream) {
+        decorated.addOutput(stream);
+    }
 
-  @Override
-  public ConnectionsNumber inputsNumber() {
-    return decorated.inputsNumber();
-  }
+    @Override
+    public ConnectionsNumber inputsNumber() {
+        return decorated.inputsNumber();
+    }
 
-  @Override
-  public ConnectionsNumber outputsNumber() {
-    return decorated.outputsNumber();
-  }
+    @Override
+    public ConnectionsNumber outputsNumber() {
+        return decorated.outputsNumber();
+    }
 
-  @Override
-  public Stream<OUT> getOutput() {
-    return decorated.getOutput();
-  }
+    @Override
+    public Stream<OUT> getOutput() {
+        return decorated.getOutput();
+    }
 
 }

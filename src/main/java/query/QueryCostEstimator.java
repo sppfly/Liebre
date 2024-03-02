@@ -32,57 +32,56 @@ import org.apache.logging.log4j.Logger;
 
 public class QueryCostEstimator implements Runnable {
 
-  public static final int SAMPLE_FREQUENCY_MILLIS = 10000;
-  public static final int NANOS_TO_SEC = 1000000000;
-  private static final Logger LOG = LogManager.getLogger();
-  private final Query query;
-  private final boolean scheduling;
+    public static final int SAMPLE_FREQUENCY_MILLIS = 10000;
+    public static final int NANOS_TO_SEC = 1000000000;
+    private static final Logger LOG = LogManager.getLogger();
+    private final Query query;
+    private final boolean scheduling;
 
-  public QueryCostEstimator(Query query, boolean scheduling) {
-    this.query = query;
-    this.scheduling = scheduling;
-  }
-
-  @Override
-  public void run() {
-    Affinity.setAffinity(0);
-    if (!scheduling) {
-      return;
+    public QueryCostEstimator(Query query, boolean scheduling) {
+        this.query = query;
+        this.scheduling = scheduling;
     }
-    while (!Thread.currentThread().isInterrupted()) {
-      try {
-        Thread.currentThread().sleep(SAMPLE_FREQUENCY_MILLIS);
-      } catch (InterruptedException e) {
-        return;
-      }
-      Collection<Source<?>> sources = query.sources();
-      double totalCost = 0;
-      double totalUtilization = 0;
-      double totalRate = 0;
-      for (Source<?> source : sources) {
-        double sourceCost = globalAverageCost(source) / NANOS_TO_SEC;
-        double sourceRate = source.getRate() * NANOS_TO_SEC;
-//        LOG.info("Source {} max rate = {} t/s", source, 1 / sourceCost);
-//        LOG.info("Source {} current rate = {} t/s", source, sourceRate);
-        totalCost += sourceCost;
-        totalRate += sourceRate;
-        totalUtilization += 100 * (sourceRate * sourceCost);
-      }
-      LOG.info("Current Average Rate = {} t/s", totalRate / sources.size());
-      LOG.info("Current Maximum Rate = {} t/s", 1 / totalCost);
-      LOG.info("Current Utilization = {}%", String.format("%3.2f", totalUtilization));
+
+    @Override
+    public void run() {
+        Affinity.setAffinity(0);
+        if (!scheduling) {
+            return;
+        }
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                Thread.currentThread().sleep(SAMPLE_FREQUENCY_MILLIS);
+            } catch (InterruptedException e) {
+                return;
+            }
+            Collection<Source<?>> sources = query.sources();
+            double totalCost = 0;
+            double totalUtilization = 0;
+            double totalRate = 0;
+            for (Source<?> source : sources) {
+                double sourceCost = globalAverageCost(source) / NANOS_TO_SEC;
+                double sourceRate = source.getRate() * NANOS_TO_SEC;
+                // LOG.info("Source {} max rate = {} t/s", source, 1 / sourceCost);
+                // LOG.info("Source {} current rate = {} t/s", source, sourceRate);
+                totalCost += sourceCost;
+                totalRate += sourceRate;
+                totalUtilization += 100 * (sourceRate * sourceCost);
+            }
+            LOG.info("Current Average Rate = {} t/s", totalRate / sources.size());
+            LOG.info("Current Maximum Rate = {} t/s", 1 / totalCost);
+            LOG.info("Current Utilization = {}%", String.format("%3.2f", totalUtilization));
+        }
     }
-  }
 
-  private double globalAverageCost(Component component) {
-    double globalAverageCost = component.getCost();
-    double selectivity = component.getSelectivity();
-    for (Component downstream : component.getDownstream()) {
-      globalAverageCost += selectivity * globalAverageCost(downstream);
+    private double globalAverageCost(Component component) {
+        double globalAverageCost = component.getCost();
+        double selectivity = component.getSelectivity();
+        for (Component downstream : component.getDownstream()) {
+            globalAverageCost += selectivity * globalAverageCost(downstream);
+        }
+        return globalAverageCost;
+
     }
-    return globalAverageCost;
-
-  }
-
 
 }

@@ -25,52 +25,52 @@ package common.metrics;
 
 /** Statistic that records the per-second sum of the recorded value. */
 public class FileCountMetric extends AbstractFileMetric {
-  private long count;
-  long prevSec;
-  boolean resetCount;
+    private long count;
+    long prevSec;
+    boolean resetCount;
 
-  public FileCountMetric(String id, String folder, boolean autoFlush, boolean resetCount) {
-    super(id, folder, autoFlush);
-    this.resetCount = resetCount;
-  }
-
-  @Override
-  protected void doRecord(long v) {
-    writePreviousCounts();
-    count += v;
-  }
-
-  @Override
-  public void enable() {
-    this.count = 0;
-    this.prevSec = currentTimeSeconds();
-    super.enable();
-  }
-
-  public void disable() {
-    writePreviousCounts();
-    super.disable();
-  }
-
-  private void writePreviousCounts() {
-    long thisSec = currentTimeSeconds();
-    while (prevSec < thisSec) {
-      writeCSVLine(prevSec, count);
-      if (resetCount) {
-        count = 0;
-      }
-      prevSec++;
+    public FileCountMetric(String id, String folder, boolean autoFlush, boolean resetCount) {
+        super(id, folder, autoFlush);
+        this.resetCount = resetCount;
     }
-  }
 
-  @Override
-  public void reset() {
-    count = 0;
-  }
+    @Override
+    protected void doRecord(long v) {
+        writePreviousCounts();
+        count += v;
+    }
 
-  @Override
-  public void ping() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'ping'");
-  }
+    @Override
+    public void enable() {
+        this.count = 0;
+        this.prevSec = currentTimeSeconds();
+        super.enable();
+    }
+
+    public void disable() {
+        writePreviousCounts();
+        super.disable();
+    }
+
+    private void writePreviousCounts() {
+        long thisSec = currentTimeSeconds();
+        while (prevSec < thisSec) {
+            writeCSVLine(prevSec, count);
+            if (resetCount) {
+                count = 0;
+            }
+            prevSec++;
+        }
+    }
+
+    @Override
+    public void reset() {
+        count = 0;
+    }
+
+    @Override
+    public void ping() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'ping'");
+    }
 }

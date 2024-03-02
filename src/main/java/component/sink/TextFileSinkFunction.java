@@ -35,42 +35,42 @@ import org.apache.commons.lang3.Validate;
  */
 public class TextFileSinkFunction<IN> implements SinkFunction<IN> {
 
-  private final String path;
-  private final boolean autoFlush;
-  private boolean enabled;
-  private PrintWriter writer;
+    private final String path;
+    private final boolean autoFlush;
+    private boolean enabled;
+    private PrintWriter writer;
 
-  public TextFileSinkFunction(String path, boolean autoFlush) {
-    Validate.notBlank(path, "path");
-    this.path = path;
-    this.autoFlush = true;
-  }
-
-  @Override
-  public void accept(IN in) {
-    writer.println(in);
-  }
-
-  @Override
-  public void enable() {
-    try {
-      this.writer = new PrintWriter(new FileWriter(path), autoFlush);
-    } catch (IOException e) {
-      throw new IllegalArgumentException(String.format("Cannot write to file :%s", path));
+    public TextFileSinkFunction(String path, boolean autoFlush) {
+        Validate.notBlank(path, "path");
+        this.path = path;
+        this.autoFlush = true;
     }
-    this.enabled = true;
-  }
 
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
+    @Override
+    public void accept(IN in) {
+        writer.println(in);
+    }
 
-  @Override
-  public void disable() {
-    System.out.println("Closing sink writer");
-    this.enabled = false;
-    writer.flush();
-    writer.close();
-  }
+    @Override
+    public void enable() {
+        try {
+            this.writer = new PrintWriter(new FileWriter(path), autoFlush);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Cannot write to file :%s", path));
+        }
+        this.enabled = true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public void disable() {
+        System.out.println("Closing sink writer");
+        this.enabled = false;
+        writer.flush();
+        writer.close();
+    }
 }

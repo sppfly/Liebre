@@ -27,8 +27,7 @@ package component.operator.in1.aggregate;
  * Default implementation of {@link TupleWindow}, maintaining the trivial state
  * (instanceNumber and parallelismDegree)
  */
-public abstract class BaseTupleWindow<IN, OUT>
-        implements TupleWindow<IN, OUT> {
+public abstract class BaseTupleWindow<IN, OUT> implements TupleWindow<IN, OUT> {
 
     protected int instanceNumber;
     protected int parallelismDegree;

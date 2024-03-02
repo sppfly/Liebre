@@ -36,50 +36,49 @@ import query.Query;
 
 public class SimpleQuery {
 
-  public static void main(String[] args) {
+    public static void main(String[] args) {
 
-    Query q = new Query();
-    Source<MyTuple> source = q.addBaseSource("I1", new SourceFunction<MyTuple>() {
-      private final Random r = new Random();
+        Query q = new Query();
+        Source<MyTuple> source = q.addBaseSource("I1", new SourceFunction<MyTuple>() {
+            private final Random r = new Random();
 
-      @Override
-      public MyTuple get() {
-        Util.sleep(50);
-        return new MyTuple(System.currentTimeMillis(), r.nextInt(5), r.nextInt(100));
-      }
-    });
-
-    Operator<MyTuple, MyTuple> multiply = q
-        .addOperator(new BaseOperator1In<MyTuple, MyTuple>("M") {
-          @Override
-          public List<MyTuple> processTupleIn1(MyTuple tuple) {
-            List<MyTuple> result = new LinkedList<MyTuple>();
-            result.add(new MyTuple(tuple.timestamp, tuple.key, tuple.value * 2));
-            return result;
-          }
+            @Override
+            public MyTuple get() {
+                Util.sleep(50);
+                return new MyTuple(System.currentTimeMillis(), r.nextInt(5), r.nextInt(100));
+            }
         });
 
-    Sink<MyTuple> sink = q.addBaseSink("O1",
-        tuple -> System.out.println(tuple.timestamp + "," + tuple.key + "," + tuple.value));
+        Operator<MyTuple, MyTuple> multiply = q.addOperator(new BaseOperator1In<MyTuple, MyTuple>("M") {
+            @Override
+            public List<MyTuple> processTupleIn1(MyTuple tuple) {
+                List<MyTuple> result = new LinkedList<MyTuple>();
+                result.add(new MyTuple(tuple.timestamp, tuple.key, tuple.value * 2));
+                return result;
+            }
+        });
 
-    q.connect(source, multiply).connect(multiply, sink);
+        Sink<MyTuple> sink = q.addBaseSink("O1",
+                tuple -> System.out.println(tuple.timestamp + "," + tuple.key + "," + tuple.value));
 
-    q.activate();
-    Util.sleep(30000);
-    q.deActivate();
+        q.connect(source, multiply).connect(multiply, sink);
 
-  }
+        q.activate();
+        Util.sleep(30000);
+        q.deActivate();
 
-  private static class MyTuple {
-
-    public long timestamp;
-    public int key;
-    public int value;
-
-    public MyTuple(long timestamp, int key, int value) {
-      this.timestamp = timestamp;
-      this.key = key;
-      this.value = value;
     }
-  }
+
+    private static class MyTuple {
+
+        public long timestamp;
+        public int key;
+        public int value;
+
+        public MyTuple(long timestamp, int key, int value) {
+            this.timestamp = timestamp;
+            this.key = key;
+            this.value = value;
+        }
+    }
 }

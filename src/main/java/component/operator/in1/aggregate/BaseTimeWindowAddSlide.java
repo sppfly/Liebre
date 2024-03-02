@@ -26,8 +26,9 @@ package component.operator.in1.aggregate;
 import common.tuple.RichTuple;
 
 /**
- * Default implementation of {@link TimeWindowAddRemove}, maintaining the trivial state, including
- * the {@code key} of the tuples and the {@code timestamp} of the earliest tuple of this window.
+ * Default implementation of {@link TimeWindowAddRemove}, maintaining the
+ * trivial state, including the {@code key} of the tuples and the
+ * {@code timestamp} of the earliest tuple of this window.
  */
 public abstract class BaseTimeWindowAddSlide<IN extends RichTuple, OUT extends RichTuple>
         implements TimeWindowAddSlide<IN, OUT> {

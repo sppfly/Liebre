@@ -37,48 +37,48 @@ import java.io.Serializable;
  */
 public class BinaryFileSinkFunction<IN extends Serializable> implements SinkFunction<IN> {
 
-  private final String path;
-  private boolean enabled;
-  private ObjectOutputStream writer;
+    private final String path;
+    private boolean enabled;
+    private ObjectOutputStream writer;
 
-  public BinaryFileSinkFunction(String path) {
-    Validate.notBlank(path, "path");
-    this.path = path;
-  }
-
-  @Override
-  public void accept(IN in) {
-    try {
-      writer.writeObject(in);
-    } catch (IOException e) {
-      e.printStackTrace();
+    public BinaryFileSinkFunction(String path) {
+        Validate.notBlank(path, "path");
+        this.path = path;
     }
-  }
 
-  @Override
-  public void enable() {
-    try {
-      this.writer = new ObjectOutputStream(new FileOutputStream(path));
-    } catch (IOException e) {
-      throw new IllegalArgumentException(String.format("Cannot write to file :%s", path));
+    @Override
+    public void accept(IN in) {
+        try {
+            writer.writeObject(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    this.enabled = true;
-  }
 
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  @Override
-  public void disable() {
-    this.enabled = false;
-    try {
-      // writer.writeObject(null);
-      writer.flush();
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
+    @Override
+    public void enable() {
+        try {
+            this.writer = new ObjectOutputStream(new FileOutputStream(path));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Cannot write to file :%s", path));
+        }
+        this.enabled = true;
     }
-  }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public void disable() {
+        this.enabled = false;
+        try {
+            // writer.writeObject(null);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

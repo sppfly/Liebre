@@ -27,58 +27,58 @@ import java.util.function.Consumer;
 
 /** Statistic that records the per-second sum of the recorded value. */
 public class FileAndConsumerCountMetric extends AbstractFileAndConsumerMetric {
-  private long count;
-  long prevSec;
-  boolean resetCount;
+    private long count;
+    long prevSec;
+    boolean resetCount;
 
-  private final long missingValue = -1;
-  private final long neutralValue = 0;
+    private final long missingValue = -1;
+    private final long neutralValue = 0;
 
-  public FileAndConsumerCountMetric(String id, String folder, boolean autoFlush, boolean resetCount,
-      Consumer<Object[]> c) {
-    super(id, folder, autoFlush, c);
-    this.resetCount = resetCount;
-  }
-
-  @Override
-  protected void doRecord(long v) {
-    writePreviousCounts();
-    if (count == missingValue) {
-      count = neutralValue;
+    public FileAndConsumerCountMetric(String id, String folder, boolean autoFlush, boolean resetCount,
+            Consumer<Object[]> c) {
+        super(id, folder, autoFlush, c);
+        this.resetCount = resetCount;
     }
-    count += v;
-  }
 
-  @Override
-  public void enable() {
-    this.count = missingValue;
-    this.prevSec = currentTimeSeconds();
-    super.enable();
-  }
+    @Override
+    protected void doRecord(long v) {
+        writePreviousCounts();
+        if (count == missingValue) {
+            count = neutralValue;
+        }
+        count += v;
+    }
 
-  public void disable() {
-    writePreviousCounts();
-    super.disable();
-  }
+    @Override
+    public void enable() {
+        this.count = missingValue;
+        this.prevSec = currentTimeSeconds();
+        super.enable();
+    }
 
-  private void writePreviousCounts() {
-    long thisSec = currentTimeSeconds();
-    while (prevSec < thisSec) {
-      writeCSVLineAndConsume(prevSec, count);
-      if (resetCount) {
+    public void disable() {
+        writePreviousCounts();
+        super.disable();
+    }
+
+    private void writePreviousCounts() {
+        long thisSec = currentTimeSeconds();
+        while (prevSec < thisSec) {
+            writeCSVLineAndConsume(prevSec, count);
+            if (resetCount) {
+                count = missingValue;
+            }
+            prevSec++;
+        }
+    }
+
+    @Override
+    public void reset() {
         count = missingValue;
-      }
-      prevSec++;
     }
-  }
 
-  @Override
-  public void reset() {
-    count = missingValue;
-  }
-
-  @Override
-  public void ping() {
-    writePreviousCounts();
-  }
+    @Override
+    public void ping() {
+        writePreviousCounts();
+    }
 }

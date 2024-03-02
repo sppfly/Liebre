@@ -29,52 +29,52 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 
 /**
- * {@link component.operator.Operator} that applies a given {@link MapFunction} to each tuple of its
- * input stream.
+ * {@link component.operator.Operator} that applies a given {@link MapFunction}
+ * to each tuple of its input stream.
  *
- * @param <IN> The type of input tuples.
+ * @param <IN>  The type of input tuples.
  * @param <OUT> The type of output tuples.
  */
 public class MapOperator<IN, OUT> extends BaseOperator1In<IN, OUT> {
 
-  private MapFunction<IN, OUT> map;
+    private MapFunction<IN, OUT> map;
 
-  /**
-   * Construct.
-   *
-   * @param id The unique id of this component.operator.
-   * @param map The {@link MapFunction} to be applied to every input tuple.
-   */
-  public MapOperator(String id, MapFunction<IN, OUT> map) {
-    super(id);
-    Validate.notNull(map, "map");
-    this.map = map;
-  }
-
-  @Override
-  public void enable() {
-    map.enable();
-    super.enable();
-  }
-
-  @Override
-  public void disable() {
-    super.disable();
-    map.disable();
-  }
-
-  @Override
-  public List<OUT> processTupleIn1(IN tuple) {
-    List<OUT> result = new LinkedList<OUT>();
-    OUT t = map.apply(tuple);
-    if (t != null) {
-      result.add(t);
+    /**
+     * Construct.
+     *
+     * @param id  The unique id of this component.operator.
+     * @param map The {@link MapFunction} to be applied to every input tuple.
+     */
+    public MapOperator(String id, MapFunction<IN, OUT> map) {
+        super(id);
+        Validate.notNull(map, "map");
+        this.map = map;
     }
-    return result;
-  }
 
-  @Override
-  public boolean canRun() {
-    return map.canRun() && super.canRun();
-  }
+    @Override
+    public void enable() {
+        map.enable();
+        super.enable();
+    }
+
+    @Override
+    public void disable() {
+        super.disable();
+        map.disable();
+    }
+
+    @Override
+    public List<OUT> processTupleIn1(IN tuple) {
+        List<OUT> result = new LinkedList<OUT>();
+        OUT t = map.apply(tuple);
+        if (t != null) {
+            result.add(t);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean canRun() {
+        return map.canRun() && super.canRun();
+    }
 }

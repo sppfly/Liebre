@@ -28,14 +28,14 @@ import component.operator.in1.BaseOperator1In;
 import java.util.*;
 
 /**
- * Aggregate implementation for sliding tuple-based windows. This Aggregate does not check whether the input stream
- * is in timestamp-order. That's because tuple-based windows behavior does not depend on event time.
+ * Aggregate implementation for sliding tuple-based windows. This Aggregate does
+ * not check whether the input stream is in timestamp-order. That's because
+ * tuple-based windows behavior does not depend on event time.
  *
  * @param <IN>  The type of input tuples.
  * @param <OUT> The type of output tuples.
  */
-public class TupleAggregate<IN, OUT>
-        extends BaseOperator1In<IN, OUT> {
+public class TupleAggregate<IN, OUT> extends BaseOperator1In<IN, OUT> {
 
     private final int instance;
     private final int parallelismDegree;
@@ -45,22 +45,17 @@ public class TupleAggregate<IN, OUT>
     private boolean firstTuple = true;
     private long tuples;
 
-    public TupleAggregate(
-            String id,
-            int instance,
-            int parallelismDegree,
-            long windowSize,
-            long windowSlide,
+    public TupleAggregate(String id, int instance, int parallelismDegree, long windowSize, long windowSlide,
             TupleWindow<IN, OUT> aggregateWindow) {
         super(id);
-        this.instance=instance;
-        this.parallelismDegree=parallelismDegree;
+        this.instance = instance;
+        this.parallelismDegree = parallelismDegree;
         this.WS = windowSize;
         this.WA = windowSlide;
         this.aggregateWindow = aggregateWindow;
         this.aggregateWindow.setInstanceNumber(this.instance);
         this.aggregateWindow.setParallelismDegree(this.parallelismDegree);
-        assert(WA<=WS);
+        assert (WA <= WS);
     }
 
     public List<OUT> processTupleIn1(IN t) {
@@ -70,13 +65,13 @@ public class TupleAggregate<IN, OUT>
         aggregateWindow.add(t);
         tuples++;
 
-        if (tuples==WS) {
+        if (tuples == WS) {
             OUT outT = aggregateWindow.getAggregatedResult();
-            if (outT!=null) {
+            if (outT != null) {
                 result.add(outT);
             }
             aggregateWindow.slideBy(WA);
-            tuples-=WA;
+            tuples -= WA;
         }
 
         return result;

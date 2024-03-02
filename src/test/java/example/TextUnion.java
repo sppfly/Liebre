@@ -33,47 +33,39 @@ import query.Query;
 
 public class TextUnion {
 
-  public static void main(String[] args) {
+    public static void main(String[] args) {
 
-    final String reportFolder = args[0];
-    final String inputFile1 = args[1];
-    final String inputFile2 = args[2];
-    final String outputFile = reportFolder + File.separator + "TextUnion.out.csv";
+        final String reportFolder = args[0];
+        final String inputFile1 = args[1];
+        final String inputFile2 = args[2];
+        final String outputFile = reportFolder + File.separator + "TextUnion.out.csv";
 
-    Query q = new Query();
+        Query q = new Query();
 
-    Source<String> i1 = q.addTextFileSource("i1", inputFile1);
+        Source<String> i1 = q.addTextFileSource("i1", inputFile1);
 
-    Operator<String, MyTuple> inputReader1 =
-        q.addMapOperator(
-            "map1",
-            line -> {
-              Util.sleep(50);
-              String[] tokens = line.split(",");
-              return new MyTuple(
-                  Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
-            });
+        Operator<String, MyTuple> inputReader1 = q.addMapOperator("map1", line -> {
+            Util.sleep(50);
+            String[] tokens = line.split(",");
+            return new MyTuple(Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
+        });
 
-    Source<String> i2 = q.addTextFileSource("i2", inputFile2);
+        Source<String> i2 = q.addTextFileSource("i2", inputFile2);
 
-    Operator<String, MyTuple> inputReader2 =
-        q.addMapOperator(
-            "map2",
-            line -> {
-              Util.sleep(50);
-              String[] tokens = line.split(",");
-              return new MyTuple(
-                  Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
-            });
+        Operator<String, MyTuple> inputReader2 = q.addMapOperator("map2", line -> {
+            Util.sleep(50);
+            String[] tokens = line.split(",");
+            return new MyTuple(Long.valueOf(tokens[0]), Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
+        });
 
-    Operator<MyTuple, MyTuple> union = q.addUnionOperator("union");
+        Operator<MyTuple, MyTuple> union = q.addUnionOperator("union");
 
-    Sink<MyTuple> o1 = q.addTextFileSink("o1", outputFile, true);
+        Sink<MyTuple> o1 = q.addTextFileSink("o1", outputFile, true);
 
-    q.connect(i1, inputReader1).connect(inputReader1, union);
-    q.connect(i2, inputReader2).connect(inputReader2, union, InactiveBackoff.INSTANCE);
-    q.connect(union, o1);
+        q.connect(i1, inputReader1).connect(inputReader1, union);
+        q.connect(i2, inputReader2).connect(inputReader2, union, InactiveBackoff.INSTANCE);
+        q.connect(union, o1);
 
-    q.activate();
-  }
+        q.activate();
+    }
 }

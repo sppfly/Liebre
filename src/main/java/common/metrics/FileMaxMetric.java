@@ -24,56 +24,56 @@ package common.metrics;
  */
 
 /**
- * Statistic that records the per-second max of the recorded value.
- * Assumes non-negative records.
+ * Statistic that records the per-second max of the recorded value. Assumes
+ * non-negative records.
  */
 public class FileMaxMetric extends AbstractFileMetric {
-  private long max;
-  long prevSec;
-  boolean resetCount;
+    private long max;
+    long prevSec;
+    boolean resetCount;
 
-  public FileMaxMetric(String id, String folder, boolean autoFlush, boolean resetCount) {
-    super(id, folder, autoFlush);
-    this.resetCount = resetCount;
-  }
-
-  @Override
-  protected void doRecord(long v) {
-    writePreviousCounts();
-    max = Long.max(max, v);
-  }
-
-  @Override
-  public void enable() {
-    this.max = 0;
-    this.prevSec = currentTimeSeconds();
-    super.enable();
-  }
-
-  public void disable() {
-    writePreviousCounts();
-    super.disable();
-  }
-
-  private void writePreviousCounts() {
-    long thisSec = currentTimeSeconds();
-    while (prevSec < thisSec) {
-      writeCSVLine(prevSec, max);
-      if (resetCount) {
-        max = 0;
-      }
-      prevSec++;
+    public FileMaxMetric(String id, String folder, boolean autoFlush, boolean resetCount) {
+        super(id, folder, autoFlush);
+        this.resetCount = resetCount;
     }
-  }
 
-  @Override
-  public void reset() {
-    max = 0;
-  }
+    @Override
+    protected void doRecord(long v) {
+        writePreviousCounts();
+        max = Long.max(max, v);
+    }
 
-  @Override
-  public void ping() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'ping'");
-  }
+    @Override
+    public void enable() {
+        this.max = 0;
+        this.prevSec = currentTimeSeconds();
+        super.enable();
+    }
+
+    public void disable() {
+        writePreviousCounts();
+        super.disable();
+    }
+
+    private void writePreviousCounts() {
+        long thisSec = currentTimeSeconds();
+        while (prevSec < thisSec) {
+            writeCSVLine(prevSec, max);
+            if (resetCount) {
+                max = 0;
+            }
+            prevSec++;
+        }
+    }
+
+    @Override
+    public void reset() {
+        max = 0;
+    }
+
+    @Override
+    public void ping() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'ping'");
+    }
 }

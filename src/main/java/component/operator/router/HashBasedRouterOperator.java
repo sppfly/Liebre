@@ -37,73 +37,71 @@ import java.util.Collection;
  */
 public class HashBasedRouterOperator<T extends RichTuple> extends AbstractOperator<T, T> implements RouterOperator<T> {
 
-  private boolean firstInvocation = true;
-  Stream<T>[] outArray;
+    private boolean firstInvocation = true;
+    Stream<T>[] outArray;
 
-
-  public HashBasedRouterOperator(String id) {
-    super(id, ComponentType.ROUTER);
-  }
-
-  @Override
-  protected final void process() {
-
-    if (isFlushed()) {
-      return;
+    public HashBasedRouterOperator(String id) {
+        super(id, ComponentType.ROUTER);
     }
 
-    if (firstInvocation) {
-      firstInvocation = false;
-      outArray = new Stream[getOutputs().size()];
-      int index = 0;
-      for (Stream<T> output : getOutputs()) {
-        outArray[index] = output;
-        index++;
-      }
+    @Override
+    protected final void process() {
+
+        if (isFlushed()) {
+            return;
+        }
+
+        if (firstInvocation) {
+            firstInvocation = false;
+            outArray = new Stream[getOutputs().size()];
+            int index = 0;
+            for (Stream<T> output : getOutputs()) {
+                outArray[index] = output;
+                index++;
+            }
+        }
+
+        Stream<T> input = getInput();
+        T inTuple = input.getNextTuple(getIndex());
+
+        if (isStreamFinished(inTuple, input)) {
+            flush();
+            return;
+        }
+
+        if (inTuple != null) {
+            increaseTuplesRead();
+            increaseTuplesWritten();
+            int i = (int) (inTuple.getKey().hashCode() % outArray.length);
+            outArray[i].addTuple(inTuple, getIndex());
+        }
     }
 
-    Stream<T> input = getInput();
-    T inTuple = input.getNextTuple(getIndex());
-
-    if (isStreamFinished(inTuple, input)) {
-      flush();
-      return;
+    @Override
+    public Collection<? extends Stream<T>> chooseOutputs(T tuple) {
+        assert (false);
+        return null;
     }
 
-    if (inTuple != null) {
-      increaseTuplesRead();
-      increaseTuplesWritten();
-      int i = (int) (inTuple.getKey().hashCode() % outArray.length);
-      outArray[i].addTuple(inTuple, getIndex());
+    @Override
+    public void addOutput(Stream<T> stream) {
+        state.addOutput(stream);
     }
-  }
 
-  @Override
-  public Collection<? extends Stream<T>> chooseOutputs(T tuple) {
-    assert(false);
-    return null;
-  }
-
-  @Override
-  public void addOutput(Stream<T> stream) {
-    state.addOutput(stream);
-  }
-
-  public Stream<T> getOutput() {
-    throw new UnsupportedOperationException(
-        String.format("'%s': Router has multiple outputs!", state.getId()));
-  }
-
-  @Override
-  public boolean canRun() {
-    if (getInput().size() == 0) {
-      return false;
+    public Stream<T> getOutput() {
+        throw new UnsupportedOperationException(String.format("'%s': Router has multiple outputs!", state.getId()));
     }
-    for (Stream<?> output : getOutputs()) {
-      if (output.remainingCapacity() > 0) {
-        return true;
-      }
+
+    @Override
+    public boolean canRun() {
+        if (getInput().size() == 0) {
+            return false;
+        }
+        for (Stream<?> output : getOutputs()) {
+            if (output.remainingCapacity() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
-    return false;
-  }
 }

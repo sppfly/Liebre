@@ -34,45 +34,46 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class AbstractMetric implements Metric {
 
-  private static final Logger LOG = LogManager.getLogger();
-  protected final String id;
-  private boolean enabled;
+    private static final Logger LOG = LogManager.getLogger();
+    protected final String id;
+    private boolean enabled;
 
-  public AbstractMetric(String id) {
-    this.id = id;
-  }
-
-  public final void record(long value) {
-    if (isEnabled()) {
-      doRecord(value);
+    public AbstractMetric(String id) {
+        this.id = id;
     }
-  }
-  protected long currentTimeSeconds() {
-    return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
-  }
 
-  @Override
-  public void enable() {
-    this.enabled = true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
-  @Override
-  public void disable() {
-    if (!isEnabled()) {
-      LOG.warn("Disabling metric {} which was already disabled!", id);
+    public final void record(long value) {
+        if (isEnabled()) {
+            doRecord(value);
+        }
     }
-    this.enabled = false;
-  }
 
-  @Override
-  public String id() {
-    return id;
-  }
+    protected long currentTimeSeconds() {
+        return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+    }
 
-  protected abstract void doRecord(long value);
+    @Override
+    public void enable() {
+        this.enabled = true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    @Override
+    public void disable() {
+        if (!isEnabled()) {
+            LOG.warn("Disabling metric {} which was already disabled!", id);
+        }
+        this.enabled = false;
+    }
+
+    @Override
+    public String id() {
+        return id;
+    }
+
+    protected abstract void doRecord(long value);
 }

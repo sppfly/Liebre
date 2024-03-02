@@ -36,90 +36,90 @@ import query.Query;
 
 public class TextJoin {
 
-  public static void main(String[] args) {
+    public static void main(String[] args) {
 
-    Query q = new Query();
+        Query q = new Query();
 
-    Source<InputTuple1> i1 = q.addBaseSource("i1", new SourceFunction<InputTuple1>() {
-      private final Random r = new Random();
+        Source<InputTuple1> i1 = q.addBaseSource("i1", new SourceFunction<InputTuple1>() {
+            private final Random r = new Random();
 
-      @Override
-      public InputTuple1 get() {
-        Util.sleep(1100);
-        return new InputTuple1(System.currentTimeMillis(), r.nextInt(10));
-      }
-    });
-
-    Source<InputTuple2> i2 = q.addBaseSource("i2", new SourceFunction<InputTuple2>() {
-      private final Random r = new Random();
-
-      @Override
-      public InputTuple2 get() {
-        Util.sleep(1100);
-        return new InputTuple2(System.currentTimeMillis(), r.nextInt(20));
-      }
-    });
-
-    Operator2In<InputTuple1, InputTuple2, OutputTuple> join = q.addJoinOperator("join",
-        new JoinFunction<InputTuple1, InputTuple2, OutputTuple>() {
-          @Override
-          public OutputTuple apply(InputTuple1 t1, InputTuple2 t2) {
-            if (t1.a < t2.b) {
-              return new OutputTuple(t1.getTimestamp(), t1, t2);
+            @Override
+            public InputTuple1 get() {
+                Util.sleep(1100);
+                return new InputTuple1(System.currentTimeMillis(), r.nextInt(10));
             }
-            return null;
-          }
-        }, 10000);
+        });
 
-    Sink<OutputTuple> o1 = q.addBaseSink("o1", new SinkFunction<OutputTuple>() {
-      @Override
-      public void accept(OutputTuple tuple) {
-        System.out.println(tuple.t1.a + " <--> " + tuple.t2.b);
-      }
-    });
+        Source<InputTuple2> i2 = q.addBaseSource("i2", new SourceFunction<InputTuple2>() {
+            private final Random r = new Random();
 
-    q.connect2inLeft(i1, join);
-    q.connect2inRight(i2, join);
-    q.connect(join, o1);
+            @Override
+            public InputTuple2 get() {
+                Util.sleep(1100);
+                return new InputTuple2(System.currentTimeMillis(), r.nextInt(20));
+            }
+        });
 
-    q.activate();
-    Util.sleep(30000);
-    q.deActivate();
+        Operator2In<InputTuple1, InputTuple2, OutputTuple> join = q.addJoinOperator("join",
+                new JoinFunction<InputTuple1, InputTuple2, OutputTuple>() {
+                    @Override
+                    public OutputTuple apply(InputTuple1 t1, InputTuple2 t2) {
+                        if (t1.a < t2.b) {
+                            return new OutputTuple(t1.getTimestamp(), t1, t2);
+                        }
+                        return null;
+                    }
+                }, 10000);
 
-  }
+        Sink<OutputTuple> o1 = q.addBaseSink("o1", new SinkFunction<OutputTuple>() {
+            @Override
+            public void accept(OutputTuple tuple) {
+                System.out.println(tuple.t1.a + " <--> " + tuple.t2.b);
+            }
+        });
 
-  private static class InputTuple1 extends BaseRichTuple {
+        q.connect2inLeft(i1, join);
+        q.connect2inRight(i2, join);
+        q.connect(join, o1);
 
-    public int a;
+        q.activate();
+        Util.sleep(30000);
+        q.deActivate();
 
-    public InputTuple1(long timestamp, int a) {
-      super(timestamp, "");
-      this.a = a;
     }
 
-  }
+    private static class InputTuple1 extends BaseRichTuple {
 
-  private static class InputTuple2 extends BaseRichTuple {
+        public int a;
 
-    public int b;
+        public InputTuple1(long timestamp, int a) {
+            super(timestamp, "");
+            this.a = a;
+        }
 
-    public InputTuple2(long timestamp, int b) {
-      super(timestamp, "");
-      this.b = b;
     }
 
-  }
+    private static class InputTuple2 extends BaseRichTuple {
 
-  private static class OutputTuple extends BaseRichTuple {
+        public int b;
 
-    public InputTuple1 t1;
-    public InputTuple2 t2;
+        public InputTuple2(long timestamp, int b) {
+            super(timestamp, "");
+            this.b = b;
+        }
 
-    public OutputTuple(long timestamp, InputTuple1 t1, InputTuple2 t2) {
-      super(timestamp, "");
-      this.t1 = t1;
-      this.t2 = t2;
     }
 
-  }
+    private static class OutputTuple extends BaseRichTuple {
+
+        public InputTuple1 t1;
+        public InputTuple2 t2;
+
+        public OutputTuple(long timestamp, InputTuple1 t1, InputTuple2 t2) {
+            super(timestamp, "");
+            this.t1 = t1;
+            this.t2 = t2;
+        }
+
+    }
 }

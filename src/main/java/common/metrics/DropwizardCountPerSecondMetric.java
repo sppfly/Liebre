@@ -29,48 +29,48 @@ import com.codahale.metrics.MetricRegistry;
 /** Statistic that records the per-second sum of the recorded value. */
 class DropwizardCountPerSecondMetric extends AbstractMetric implements Metric {
 
-  private final AverageGauge gauge;
+    private final AverageGauge gauge;
 
-  private static class AverageGauge implements Gauge<Long> {
-    private long startTime = System.currentTimeMillis();
-    private long sum = 0;
+    private static class AverageGauge implements Gauge<Long> {
+        private long startTime = System.currentTimeMillis();
+        private long sum = 0;
 
-    void add(long value) {
-      synchronized (this) {
-        sum += value;
-      }
+        void add(long value) {
+            synchronized (this) {
+                sum += value;
+            }
+        }
+
+        @Override
+        public Long getValue() {
+            long newTime = System.currentTimeMillis();
+            long value = (1000 * sum) / (newTime - startTime);
+            synchronized (this) {
+                startTime = newTime;
+                sum = 0;
+            }
+            return value;
+        }
+    }
+
+    public DropwizardCountPerSecondMetric(String id, MetricRegistry metricRegistry) {
+        super(id);
+        gauge = (AverageGauge) metricRegistry.gauge(id, AverageGauge::new);
     }
 
     @Override
-    public Long getValue() {
-      long newTime = System.currentTimeMillis();
-      long value = (1000 * sum) / (newTime - startTime);
-      synchronized (this) {
-        startTime = newTime;
-        sum = 0;
-      }
-      return value;
+    protected void doRecord(long v) {
+        gauge.add(v);
     }
-  }
 
-  public DropwizardCountPerSecondMetric(String id, MetricRegistry metricRegistry) {
-    super(id);
-    gauge = (AverageGauge) metricRegistry.gauge(id, AverageGauge::new);
-  }
+    @Override
+    public void reset() {
+        throw new UnsupportedOperationException("Unimplemented method 'reset'");
+    }
 
-  @Override
-  protected void doRecord(long v) {
-    gauge.add(v);
-  }
-
-  @Override
-  public void reset() {
-    throw new UnsupportedOperationException("Unimplemented method 'reset'");
-  }
-
-  @Override
-  public void ping() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'ping'");
-  }
+    @Override
+    public void ping() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'ping'");
+    }
 }

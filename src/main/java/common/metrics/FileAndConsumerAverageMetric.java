@@ -27,62 +27,62 @@ import java.util.function.Consumer;
 /** Statistic that writes the per-second average of the recorded value. */
 public class FileAndConsumerAverageMetric extends AbstractFileAndConsumerMetric {
 
-  private long sum;
-  private long count;
-  private long prevSec;
+    private long sum;
+    private long count;
+    private long prevSec;
 
-  private final long missingValue = -1;
-  private final long neutralValue = 0;
+    private final long missingValue = -1;
+    private final long neutralValue = 0;
 
-  public FileAndConsumerAverageMetric(String id, String folder, boolean autoFlush, Consumer<Object[]> c) {
-    super(id, folder, autoFlush, c);
-  }
-
-  @Override
-  protected void doRecord(long v) {
-    writePreviousAverages();
-    if (sum==missingValue) {
-      sum=neutralValue;
+    public FileAndConsumerAverageMetric(String id, String folder, boolean autoFlush, Consumer<Object[]> c) {
+        super(id, folder, autoFlush, c);
     }
-    if (count==missingValue) {
-      count=neutralValue;
+
+    @Override
+    protected void doRecord(long v) {
+        writePreviousAverages();
+        if (sum == missingValue) {
+            sum = neutralValue;
+        }
+        if (count == missingValue) {
+            count = neutralValue;
+        }
+        sum += v;
+        count++;
     }
-    sum += v;
-    count++;
-  }
 
-  @Override
-  public void enable() {
-    this.sum = missingValue;
-    this.count = missingValue;
-    prevSec = currentTimeSeconds();
-    super.enable();
-  }
-
-  public void disable() {
-    writePreviousAverages();
-    super.disable();
-  }
-
-  private void writePreviousAverages() {
-    long thisSec = currentTimeSeconds();
-    while (prevSec < thisSec) {
-      long average = (count != missingValue ? sum / count : missingValue);
-      writeCSVLineAndConsume(prevSec, average);
-      sum = missingValue;
-      count = missingValue;
-      prevSec++;
+    @Override
+    public void enable() {
+        this.sum = missingValue;
+        this.count = missingValue;
+        prevSec = currentTimeSeconds();
+        super.enable();
     }
-  }
 
-  @Override
-  public void reset() {
-    sum = missingValue;
-    count = missingValue;
-  }
+    public void disable() {
+        writePreviousAverages();
+        super.disable();
+    }
 
-  @Override
-  public void ping() {
-    writePreviousAverages();
-  }
+    private void writePreviousAverages() {
+        long thisSec = currentTimeSeconds();
+        while (prevSec < thisSec) {
+            long average = (count != missingValue ? sum / count : missingValue);
+            writeCSVLineAndConsume(prevSec, average);
+            sum = missingValue;
+            count = missingValue;
+            prevSec++;
+        }
+    }
+
+    @Override
+    public void reset() {
+        sum = missingValue;
+        count = missingValue;
+    }
+
+    @Override
+    public void ping() {
+        writePreviousAverages();
+    }
 }

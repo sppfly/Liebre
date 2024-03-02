@@ -24,14 +24,15 @@
 package common.util.backoff;
 
 /**
- * Interface for methods that implement backoff strategies to delay specific operations in order to
- * match the speed of components with different throughputs.
+ * Interface for methods that implement backoff strategies to delay specific
+ * operations in order to match the speed of components with different
+ * throughputs.
  */
 public interface Backoff {
 
-  void backoff();
+    void backoff();
 
-  void relax();
+    void relax();
 
-  Backoff newInstance();
+    Backoff newInstance();
 }
